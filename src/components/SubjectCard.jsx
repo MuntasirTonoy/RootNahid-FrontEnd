@@ -46,13 +46,13 @@ export default function SubjectCard({ subject, courseId, isSelected, onClick }) 
             </span>
         </div>
         
-        <a 
+        {/* <a 
             href={`/learn/${courseId}/${subject.id}`}
             onClick={(e) => { e.stopPropagation(); }} 
             className="text-xs font-bold text-primary hover:text-primary-hover hover:underline"
         >
             View Content →
-        </a>
+        </a> */}
       </div>
     </div>
   );

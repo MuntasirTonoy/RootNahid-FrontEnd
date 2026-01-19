@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Plus, Trash, Save, BookOpen, Video, Link as LinkIcon, DollarSign, Layers, ChevronRight, ChevronDown, Upload } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
@@ -85,75 +85,110 @@ const nuData = {
 
 // --- Reusable Dropdown Component ---
 const CustomDropdown = ({ label, value, options, onChange, disabled, placeholder }) => {
-  // Helper to close dropdown on click
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleSelect = (val) => {
     onChange(val);
-    const elem = document.activeElement;
-    if (elem) {
-      elem.blur();
-    }
+    setIsOpen(false);
   };
 
   return (
-    <div className="form-control w-full">
+    <div className="form-control w-full" ref={dropdownRef}>
       <label className="label">
         <span className="label-text font-medium">{label}</span>
       </label>
       
-      <div className={`dropdown dropdown-bottom w-full ${disabled ? 'pointer-events-none opacity-50' : ''}`}>
-        <div 
-          tabIndex={0} 
-          role="button" 
-          className="btn w-full justify-between bg-surface border-transparent hover:bg-muted text-foreground font-normal rounded-xl h-12"
+      <div className="relative w-full">
+        <button 
+          type="button"
+          onClick={() => !disabled && setIsOpen(!isOpen)}
+          className={`w-full flex justify-between items-center px-4 py-3 bg-surface border border-transparent hover:bg-muted text-foreground font-normal rounded-xl transition-all ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
         >
           <span className={!value ? "text-muted-foreground" : ""}>
             {value || placeholder}
           </span>
-          <ChevronDown size={16} className="opacity-50" />
-        </div>
+          <ChevronDown size={16} className={`opacity-50 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
         
-        {!disabled && (
-          <ul tabIndex={0} className="dropdown-content menu bg-card rounded-xl z-50 w-full p-2 shadow-xl border border-border max-h-60 overflow-y-auto flex-nowrap block text-foreground">
-            {options.map((opt, idx) => (
-              <li key={idx} onClick={() => handleSelect(opt.value)}>
-                <a className="hover:bg-muted rounded-lg">{opt.label}</a>
-              </li>
-            ))}
-          </ul>
+        {isOpen && !disabled && (
+          <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-card rounded-xl shadow-xl border border-border max-h-60 overflow-y-auto z-[100]">
+            <ul className="space-y-1">
+              {options.map((opt, idx) => (
+                <li key={idx} onClick={() => handleSelect(opt.value)}>
+                   <div className="px-3 py-2 hover:bg-muted rounded-lg cursor-pointer text-sm text-foreground">
+                      {opt.label}
+                   </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </div>
   );
 };
 
-export default function ManageVideos() {
+const ManageVideos = () => {
   const { user } = useAuth();
   
+  // Data State
+  const [availableSubjects, setAvailableSubjects] = useState([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
   // Selections
   const [selectedDept, setSelectedDept] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState(''); 
+  const [selectedSubjectId, setSelectedSubjectId] = useState(''); 
   
+  // Fetch Subjects on Mount
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const token = await auth.currentUser.getIdToken();
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/subjects`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        setAvailableSubjects(res.data);
+      } catch (error) {
+        console.error("Error fetching subjects:", error);
+        Swal.fire("Error", "Failed to load subjects", "error");
+      } finally {
+        setDataLoading(false);
+      }
+    };
+
+    if (user) fetchSubjects();
+  }, [user]);
+
   // Derived Data for Dropdowns
-  const departmentOptions = Object.keys(nuData).map(d => ({ label: d, value: d }));
+  const departmentOptions = [...new Set(availableSubjects.map(s => s.department))].filter(Boolean).map(d => ({ label: d, value: d }));
   
   const yearOptions = selectedDept 
-    ? Object.keys(nuData[selectedDept]).map(y => ({ label: y, value: y })) 
+    ? [...new Set(availableSubjects.filter(s => s.department === selectedDept).map(s => s.yearLevel))].filter(Boolean).map(y => ({ label: y, value: y })) 
     : [];
     
   // Find currently selected subject object to display neatly
-  const currentSubjectObj = (selectedDept && selectedYear && selectedSubject) 
-    ? nuData[selectedDept][selectedYear].find(s => s.title === selectedSubject)
-    : null;
+  const currentSubjectObj = availableSubjects.find(s => s._id === selectedSubjectId);
 
   const subjectOptions = (selectedDept && selectedYear) 
-    ? nuData[selectedDept][selectedYear].map(s => ({ 
-        label: `[${s.code}] ${s.title}`, 
-        value: s.title 
-      })) 
+    ? availableSubjects
+        .filter(s => s.department === selectedDept && s.yearLevel === selectedYear)
+        .map(s => ({ 
+            label: `[${s.code || 'N/A'}] ${s.title}`, 
+            value: s._id 
+        })) 
     : [];
-
-  const subjects = (selectedDept && selectedYear) ? nuData[selectedDept][selectedYear] : [];
 
   // Form Data
   const [chapterName, setChapterName] = useState('');
@@ -186,7 +221,7 @@ export default function ManageVideos() {
   };
 
   const handleSubmit = async () => {
-    if (!selectedSubject || !chapterName || videoParts.some(p => !p.videoUrl)) {
+    if (!selectedSubjectId || !chapterName || videoParts.some(p => !p.videoUrl)) {
       Swal.fire('Missing Fields', 'Please select Department, Year, Subject and fill in Video URLs.', 'warning');
       return;
     }
@@ -200,8 +235,7 @@ export default function ManageVideos() {
         const videoData = {
           title: part.title || `${chapterName} - Part ${part.partNumber}`,
           chapterName: chapterName,
-          subjectTitle: selectedSubject,
-          subjectCode: subjects.find(s => s.title === selectedSubject)?.code, 
+          subjectId: selectedSubjectId, // Sending correct ID
           partNumber: part.partNumber,
           videoUrl: part.videoUrl,
           noteLink: part.noteLink,
@@ -248,7 +282,7 @@ export default function ManageVideos() {
         <div className="bg-card rounded-3xl shadow-sm border border-border p-5">
           <div className="overflow-visible z-10">
             <h2 className="text-base font-bold mb-4 flex gap-2 text-muted-foreground items-center">
-              <Layers size={18} /> Select options
+              <Layers size={18} /> Select options {dataLoading && <span className="loading loading-spinner loading-xs ml-2"></span>}
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -262,7 +296,7 @@ export default function ManageVideos() {
                 onChange={(val) => {
                   setSelectedDept(val);
                   setSelectedYear('');
-                  setSelectedSubject('');
+                  setSelectedSubjectId('');
                 }}
               />
 
@@ -275,7 +309,7 @@ export default function ManageVideos() {
                 disabled={!selectedDept}
                 onChange={(val) => {
                   setSelectedYear(val);
-                  setSelectedSubject('');
+                  setSelectedSubjectId('');
                 }}
               />
 
@@ -284,10 +318,10 @@ export default function ManageVideos() {
                 label="Subject"
                 placeholder="Select Subject..."
                 // Display the formatted string "[Code] Title" if selected, otherwise null
-                value={currentSubjectObj ? `[${currentSubjectObj.code}] ${currentSubjectObj.title}` : ''}
+                value={currentSubjectObj ? `[${currentSubjectObj.code || 'N/A'}] ${currentSubjectObj.title}` : ''}
                 options={subjectOptions}
                 disabled={!selectedYear}
-                onChange={(val) => setSelectedSubject(val)}
+                onChange={(val) => setSelectedSubjectId(val)}
               />
 
             </div>
@@ -295,7 +329,7 @@ export default function ManageVideos() {
         </div>
 
         {/* ------------------- 2. CONTENT EDITOR ------------------- */}
-        {selectedSubject && (
+        {selectedSubjectId && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
             {/* Chapter Header */}
@@ -335,10 +369,10 @@ export default function ManageVideos() {
                   {videoParts.length > 1 && (
                     <button 
                       onClick={() => removePart(index)}
-                      className="absolute -top-3 -right-3 rounded-full bg-red-500 text-white p-2 opacity-0 group-hover:opacity-100 transition-all z-10"
+                      className="absolute -top-3 -right-3 rounded-full bg-red-500 text-white p-2 opacity-0 group-hover:opacity-100 transition-all z-10 shadow-lg"
                       title="Remove Part"
                     >
-                      <Trash size={20} />
+                      <Trash size={16} />
                     </button>
                   )}
 
@@ -346,7 +380,7 @@ export default function ManageVideos() {
                     <div className="flex flex-col md:flex-row gap-6">
                       
                       {/* Left: Indicator */}
-                      <div className="flex md:flex-col items-center gap-2 md:w-16 md:pt-2 border-b md:border-b-0 md:border-r border-border pb-4 md:pb-0">
+                      <div className="flex md:flex-col items-center gap-2 md:w-16 md:pt-2 border-b md:border-b-0 md:border-r md:border-border pb-4 md:pb-0">
                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
                           {part.partNumber}
                         </div>
@@ -420,9 +454,10 @@ export default function ManageVideos() {
 
               <button 
                 onClick={addPart}
-                className="btn btn-outline btn-block border-dashed border-2 text-base-content/50 hover:bg-base-100 hover:text-primary hover:border-primary transition-all h-16 normal-case"
+                className="flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground w-full hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5 transition-all"
               >
-                <Plus className="w-6 h-6" /> Add Another Video Part
+                <Plus size={20} />
+                Add Another Video Part
               </button>
             </div>
           </div>
@@ -431,13 +466,13 @@ export default function ManageVideos() {
       </div>
 
       {/* ------------------- FLOATING FOOTER ------------------- */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-md border-t border-border p-4 z-40">
+      <div className="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-md border-t border-border p-4 z-40 shadow-2xl">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           
           <div className="hidden md:flex items-center gap-2 text-sm">
-             {selectedSubject ? (
+             {selectedSubjectId ? (
                 <>
-                  <span className="badge badge-primary badge-outline">{selectedSubject}</span>
+                  <span className="badge badge-primary badge-outline">{currentSubjectObj?.title || selectedSubjectId}</span>
                   <ChevronRight size={14} className="text-base-content/30"/>
                   <span className={chapterName ? "font-bold" : "italic opacity-50"}>
                     {chapterName || "Untitled Chapter"}
@@ -450,7 +485,7 @@ export default function ManageVideos() {
 
           <div className="flex gap-3 w-full md:w-auto">
             <button 
-              className="btn bg-red-500 p-2 hover:bg-red-600 rounded-md text-white flex-1 md:flex-none"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 font-semibold transition-all flex-1 md:flex-none"
               onClick={() => {
                  setChapterName('');
                  setVideoParts([{ partNumber: 1, title: '', videoUrl: '', noteLink: '', isFree: false }]);
@@ -460,8 +495,8 @@ export default function ManageVideos() {
             </button>
             <button 
               onClick={handleSubmit} 
-              disabled={loading || !selectedSubject}
-              className="btn btn-primary shadow-none bg-primary text-primary-content hover:bg-primary/90 rounded-md flex-1 md:flex-none min-w-[160px]"
+              disabled={loading || !selectedSubjectId}
+              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-2.5 font-semibold text-primary-foreground flex-1 md:flex-none min-w-[160px] shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
             >
               {loading ? <span className="loading loading-spinner loading-sm"></span> : <Save size={18} />}
               Save Course
@@ -473,3 +508,5 @@ export default function ManageVideos() {
     </div>
   );
 }
+
+export default ManageVideos;

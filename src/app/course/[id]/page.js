@@ -1,40 +1,66 @@
 'use client';
-import { useState } from 'react';
-import { courses } from '@/lib/dummy-data';
+import { useState, useEffect, use } from 'react';
+import axios from 'axios';
 import SubjectCard from '@/components/SubjectCard';
 import { notFound, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function CoursePage({ params }) {
-  // Unwrapping params for Next.js 15+ compatibility (normally would be async in server component, but we need client state)
-  // Converting to Client Component means we can't easily async await params props directly in the same way without `use`.
-  // However, simpler to just map data for now. In Next 15, we might need `use(params)`.
-  // Let's assume standard behavior for now or standard prop passing. 
-  // *Wait*, params is a Promise in Next 15.
-  // We can make a wrapper or just use `use` hook if available, or simpler: just use `use` from React.
-  
-  // Actually, easiest fix for Client Component taking async params:
-  // Render a Server Component wrapper that awaits params and passes to this Client Component.
-  // But to keep it simple and as I am editing the page file:
-  return <CourseDetailContent params={params} />;
-}
-
-// Sub-component to handle the logic
-import { use } from 'react';
-
-function CourseDetailContent({ params }) {
+  // Unwrap params using React.use for Next.js 15+ compatibility
   const { id } = use(params);
   const router = useRouter();
-  const course = courses.find((c) => c.id === id);
+  
+  const [course, setCourse] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
 
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/${id}`);
+        const data = response.data;
+        
+        // Map backend data to frontend structure
+        const mappedCourse = {
+          id: data._id,
+          title: data.title,
+          shortDescription: `${data.department} - ${data.yearLevel}`,
+          subjects: data.subjects.map(sub => ({
+             id: sub._id,
+             title: sub.title,
+             description: 'Comprehensive subject module', // Placeholder
+             price: sub.offerPrice,
+             originalPrice: sub.originalPrice,
+             icon: 'book', // Placeholder
+             chapters: [] 
+          }))
+        };
+
+        setCourse(mappedCourse);
+      } catch (error) {
+        console.error("Failed to fetch course:", error);
+        // If 404, we might want to redirect or show not found
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchCourse();
+    }
+  }, [id]);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading course instructions...</div>;
+  }
+
   if (!course) {
-    notFound();
+    return <div className="min-h-screen flex items-center justify-center">Course not found</div>;
   }
 
   const toggleSubject = (subjectId) => {
     if (selectedSubjects.includes(subjectId)) {
-      setSelectedSubjects(selectedSubjects.filter(id => id !== subjectId));
+      setSelectedSubjects(selectedSubjects.filter(sid => sid !== subjectId));
     } else {
       setSelectedSubjects([...selectedSubjects, subjectId]);
     }
@@ -68,22 +94,26 @@ function CourseDetailContent({ params }) {
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
-            {course.subjects.map((subject) => (
-              <SubjectCard 
-                key={subject.id} 
-                courseId={id}
-                subject={subject} 
-                isSelected={selectedSubjects.includes(subject.id)}
-                onClick={() => toggleSubject(subject.id)}
-              />
-            ))}
+            {course.subjects.length > 0 ? (
+              course.subjects.map((subject) => (
+                <SubjectCard 
+                  key={subject.id} 
+                  courseId={id}
+                  subject={subject} 
+                  isSelected={selectedSubjects.includes(subject.id)}
+                  onClick={() => toggleSubject(subject.id)}
+                />
+              ))
+            ) : (
+              <div className="col-span-3 text-center text-gray-400">No subjects available for this course yet.</div>
+            )}
           </div>
 
         </div>
       </main>
 
       {/* Bottom Sticky Payment Bar */}
-      <div className="fixed bottom-20 bg-primary-foreground left-0 right-0 bg-base-100  p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+      <div className="fixed bottom-0 bg-primary-foreground left-0 right-0 bg-base-100  p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
          <div className="container-custom flex justify-between items-center">
             <div>
               <p className="text-gray-400 font-bold text-xs uppercase tracking-wider mb-1">Total Amount</p>
