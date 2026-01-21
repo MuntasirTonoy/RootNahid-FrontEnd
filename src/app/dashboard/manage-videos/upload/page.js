@@ -289,7 +289,7 @@ const ManageVideos = () => {
             <ArrowLeft size={20} />
           </Link>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
               <Upload size={20} />
             </div>
             <div>
@@ -306,7 +306,7 @@ const ManageVideos = () => {
 
       <div className="max-w-6xl mx-auto pt-4 md:p-6 space-y-6">
         {/* ------------------- 1. SELECTION CARD ------------------- */}
-        <div className="bg-card rounded-3xl shadow-sm border border-border p-4 md:p-5">
+        <div className="bg-card rounded-3xl border border-border p-4 md:p-5">
           <div className="overflow-visible z-10">
             <h2 className="text-base font-bold mb-4 flex gap-2 text-muted-foreground items-center">
               <Layers size={18} /> Select options{" "}
@@ -364,7 +364,7 @@ const ManageVideos = () => {
         {selectedSubjectId && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Chapter Header */}
-            <div className="bg-card rounded-3xl shadow-sm border border-border p-4 md:p-6">
+            <div className="bg-card rounded-3xl border border-border p-4 md:p-6">
               <div>
                 <div className="form-control w-full">
                   <label className="label">
@@ -396,7 +396,7 @@ const ManageVideos = () => {
               {videoParts.map((part, index) => (
                 <div
                   key={index}
-                  className="bg-card rounded-3xl shadow-sm border border-border relative group overflow-visible"
+                  className="bg-card rounded-3xl border border-border relative group overflow-visible"
                 >
                   {/* Remove Button (Floating) */}
                   {videoParts.length > 1 && (

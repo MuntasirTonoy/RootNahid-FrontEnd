@@ -176,7 +176,7 @@ export default function ManageSubjects() {
       </div>
 
       {/* ================= DESKTOP TABLE ================= */}
-      <div className="hidden md:block bg-card rounded-md border border-border overflow-hidden shadow-sm">
+      <div className="hidden md:block bg-card rounded-md border border-border overflow-hidden">
         <table className="w-full">
           <thead className="bg-muted/30 border-b border-border text-xs uppercase text-muted-foreground font-semibold">
             <tr>
@@ -271,7 +271,7 @@ export default function ManageSubjects() {
           subjects.map((s) => (
             <div
               key={s._id}
-              className="bg-card border border-border rounded-md p-4 shadow-sm space-y-3"
+              className="bg-card border border-border rounded-md p-4 space-y-3"
             >
               <div className="flex justify-between items-start">
                 <div>

@@ -97,23 +97,41 @@ export default function CourseEditModal({
           .filter(Boolean)
       : [];
 
-  // Auto-fill price when subject selected
-  useEffect(() => {
-    if (selectedSubjectId) {
-      const subj = availableSubjects.find((s) => s._id === selectedSubjectId);
+  // REMOVED useEffect for auto-fill to allow manual edit override
+
+  const handleSubjectChange = (e) => {
+    const newId = e.target.value;
+    setSelectedSubjectId(newId);
+
+    // Auto-fill from DB when selecting from dropdown
+    if (newId) {
+      const subj = availableSubjects.find((s) => s._id === newId);
       if (subj) {
-        setSubjectPrice(subj.originalPrice || "");
-        setSubjectOfferPrice(subj.offerPrice || "");
+        setSubjectPrice(
+          subj.originalPrice !== undefined && subj.originalPrice !== null
+            ? subj.originalPrice
+            : "",
+        );
+        setSubjectOfferPrice(
+          subj.offerPrice !== undefined && subj.offerPrice !== null
+            ? subj.offerPrice
+            : "",
+        );
       }
     } else {
       setSubjectPrice("");
       setSubjectOfferPrice("");
     }
-  }, [selectedSubjectId, availableSubjects]);
+  };
 
   const handleAddSubject = () => {
     if (!selectedSubjectId) return;
-    if (!subjectPrice || !subjectOfferPrice) {
+    if (
+      subjectPrice === "" ||
+      subjectPrice === null ||
+      subjectOfferPrice === "" ||
+      subjectOfferPrice === null
+    ) {
       Swal.fire("Error", "Please set both Price and Offer Price", "warning");
       return;
     }
@@ -306,7 +324,7 @@ export default function CourseEditModal({
                   <select
                     className="select select-bordered select-sm w-full rounded-md text-xs bg-background text-foreground border-border dark:bg-card"
                     value={selectedSubjectId}
-                    onChange={(e) => setSelectedSubjectId(e.target.value)}
+                    onChange={handleSubjectChange}
                     disabled={!formData.department || !formData.yearLevel}
                   >
                     <option value="" className="text-muted-foreground">
@@ -347,14 +365,23 @@ export default function CourseEditModal({
                     onChange={(e) => setSubjectOfferPrice(e.target.value)}
                   />
                 </div>
-                <div className="md:col-span-1">
+                <div className="md:col-span-1 flex items-center justify-center">
                   <button
                     type="button"
                     onClick={handleAddSubject}
-                    className="btn btn-sm btn-primary rounded-md w-full"
                     disabled={!selectedSubjectId}
+                    className="
+      w-10 h-10
+      flex items-center justify-center
+      rounded-full
+      bg-primary text-primary-foreground
+      transition-all duration-200
+      hover:bg-primary-hover  
+      active:scale-95
+      disabled:opacity-50 disabled:cursor-not-allowed
+    "
                   >
-                    <Plus size={16} />
+                    <Plus className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -380,13 +407,15 @@ export default function CourseEditModal({
                           </span>
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveSubject(subj.subjectId)}
-                        className="btn btn-ghost btn-xs bg-red-500 p-2 text-white hover:bg-error/10 rounded-md"
-                      >
-                        <Trash size={14} />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSubject(subj.subjectId)}
+                          className="btn btn-ghost btn-xs bg-red-500 p-2 text-white hover:bg-error/10 rounded-md"
+                        >
+                          <Trash size={14} />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

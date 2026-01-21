@@ -144,6 +144,11 @@ export default function StudentsPage() {
                       </div>
                     )}
                     <span className="font-bold">{u.name}</span>
+                    {u.purchasedSubjects?.length > 0 && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200">
+                        PAID
+                      </span>
+                    )}
                   </td>
                   <td className="text-muted-foreground text-left">{u.email}</td>
                   <td className="text-left">
@@ -203,7 +208,14 @@ export default function StudentsPage() {
                   </div>
                 )}
                 <div>
-                  <h3 className="font-bold">{u.name}</h3>
+                  <h3 className="font-bold flex items-center gap-2">
+                    {u.name}
+                    {u.purchasedSubjects?.length > 0 && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[8px] font-bold bg-amber-100 text-amber-700 border border-amber-200 uppercase">
+                        Paid
+                      </span>
+                    )}
+                  </h3>
                   <p className="text-sm text-muted-foreground">{u.email}</p>
                 </div>
               </div>

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  Plus,
   Trash,
   Video,
   FileText,
@@ -188,7 +187,7 @@ export default function ManageVideosList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-md bg-primary/10 text-primary flex items-center justify-center shadow-sm">
+          <div className="w-12 h-12 rounded-md bg-primary/10 text-primary flex items-center justify-center">
             <Video size={24} />
           </div>
           <div>
@@ -214,14 +213,14 @@ export default function ManageVideosList() {
 
       {/* Video Inventory Table */}
       {/* ================= DESKTOP TABLE ================= */}
-      <div className="hidden md:block bg-card rounded-2xl overflow-hidden">
-        <table className="w-full border border-border">
-          <thead className="bg-muted/20 text-xs uppercase">
+      <div className="hidden md:block bg-card rounded-md border border-border overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-muted/30 text-xs uppercase text-muted-foreground font-semibold border-b border-border">
             <tr>
               <th className="p-4 text-left">Video</th>
-              <th className="text-left">Subject</th>
-              <th className="text-left">Chapter</th>
-              <th className="text-right pr-6">Actions</th>
+              <th className="text-left font-semibold">Subject</th>
+              <th className="text-left font-semibold">Chapter</th>
+              <th className="text-right pr-6 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -245,49 +244,20 @@ export default function ManageVideosList() {
                 >
                   <td className="p-4 flex gap-4 items-center">
                     {(() => {
-                      // 1. Robustly get the Subject ID string
-                      const rawSub = video.subjectId;
-                      const subjectIdString =
-                        typeof rawSub === "object" && rawSub !== null
-                          ? rawSub._id || rawSub.$oid
-                          : rawSub;
-
-                      // 2. Find the full subject details from the loaded subjects list
-                      // This list is known to have courseId populated correctly
-                      const matchedSubject = availableSubjects.find(
-                        (s) => s._id === subjectIdString,
-                      );
-
-                      const sId = matchedSubject?._id;
-                      const courseId =
-                        matchedSubject?.courseId?._id ||
-                        matchedSubject?.courseId;
-
-                      if (courseId && sId) {
-                        return (
-                          <Link
-                            href={`/learn/${courseId}/${sId}?chapter=${encodeURIComponent(video.chapterName)}&part=${video._id}`}
-                            target="_blank"
-                            className="w-10 h-10 rounded-lg bg-red-100/50 text-red-600 flex items-center justify-center shrink-0 hover:bg-red-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105"
-                            title="Play in App"
-                          >
-                            <PlayCircle size={20} />
-                          </Link>
-                        );
-                      }
-
-                      // Debugging info for the disabled state
-                      const reason = !matchedSubject
-                        ? "Subject not found"
-                        : "Course not linked";
+                      const sub = video.subjectId;
+                      const sId = sub?._id || sub;
+                      const cId = sub?.courseId?._id || sub?.courseId;
+                      const chapter = video.chapterName?.trim() || "Untitled";
 
                       return (
-                        <div
-                          className="w-10 h-10 rounded-lg bg-muted text-muted-foreground flex items-center justify-center shrink-0 opacity-50 cursor-not-allowed"
-                          title={`Cannot play: ${reason}`}
+                        <Link
+                          href={`/learn/${cId}/${sId}?chapter=${encodeURIComponent(chapter)}&part=${video._id}`}
+                          target="_blank"
+                          className="w-10 h-10 rounded-lg bg-red-100/50 text-red-600 flex items-center justify-center shrink-0 hover:bg-red-500 hover:text-white transition-all duration-300 hover:scale-105"
+                          title="Play in App"
                         >
                           <PlayCircle size={20} />
-                        </div>
+                        </Link>
                       );
                     })()}
                     <div>
@@ -346,23 +316,33 @@ export default function ManageVideosList() {
       {/* ================= MOBILE CARDS ================= */}
       <div className="md:hidden space-y-4">
         {videos.map((video) => (
-          <div
-            key={video._id}
-            className="bg-gray-50 dark:bg-card rounded-2xl p-4 space-y-3"
-          >
-            <div className="flex gap-3 items-center">
-              <div className="w-12 h-12 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
-                <PlayCircle size={24} />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-sm line-clamp-1">
-                  {video.title}
-                </h3>
-                <p className="text-[10px] text-muted-foreground">
-                  {video.subjectId?.title || "Unknown"} • {video.chapterName}
-                </p>
-              </div>
-            </div>
+          <div key={video._id} className="bg-surface rounded-2xl p-4 space-y-3">
+            {(() => {
+              const sub = video.subjectId;
+              const sId = sub?._id || sub;
+              const cId = sub?.courseId?._id || sub?.courseId;
+              const chapter = video.chapterName?.trim() || "Untitled";
+
+              return (
+                <Link
+                  href={`/learn/${cId}/${sId}?chapter=${encodeURIComponent(chapter)}&part=${video._id}`}
+                  className="flex gap-3 items-center hover:bg-muted/10 transition-colors p-2 -mx-2 rounded-lg group"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-red-100/80 text-red-600 flex items-center justify-center shrink-0 border border-red-200/50 transition-transform group-hover:scale-105">
+                    <PlayCircle size={24} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-sm text-foreground line-clamp-1 leading-tight mb-1">
+                      {video.title}
+                    </h3>
+                    <p className="text-[10px] text-muted-foreground truncate font-medium">
+                      {video.subjectId?.title || "Unknown"} •{" "}
+                      {video.chapterName}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })()}
 
             <div className="flex flex-wrap gap-2 py-1">
               <span className="text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary px-2 py-1 rounded-md">
@@ -385,10 +365,10 @@ export default function ManageVideosList() {
                 href={getWatchUrl(video.videoUrl)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-md text-xs font-bold shadow-sm flex-1 justify-center"
+                className="p-2 hover:bg-primary/10 text-primary rounded-lg transition-colors"
+                title="View Video Source"
               >
-                <ExternalLink size={14} />
-                <span>Source</span>
+                <ExternalLink size={20} />
               </a>
 
               <div className="flex gap-2 items-center">

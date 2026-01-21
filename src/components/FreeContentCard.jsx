@@ -44,7 +44,7 @@ export default function FreeContentCard({ video }) {
 
         {/* Free Badge */}
         <div className="absolute top-3 left-3">
-          <span className="px-2 py-1 bg-primary text-white text-[10px] font-bold rounded-md shadow-sm">
+          <span className="px-2 py-1 bg-primary text-white text-[10px] font-bold rounded-md border border-primary/10">
             FREE
           </span>
         </div>

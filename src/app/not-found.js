@@ -32,7 +32,7 @@ export default function NotFound() {
         <Link
           href="/"
           className="btn btn-primary px-8 sm:px-10 py-3 rounded-md text-base sm:text-lg font-semibold
-                     shadow-lg bg-primary  hover:bg-primary/80 hover:shadow-primary/40
+                      bg-primary  hover:bg-primary/80 hover:shadow-primary/20
                      hover:-translate-y-1 transition-all duration-300"
         >
           Back to Home

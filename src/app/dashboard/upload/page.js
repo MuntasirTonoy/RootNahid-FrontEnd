@@ -253,7 +253,7 @@ export default function ManageVideos() {
       {/* ------------------- HEADER ------------------- */}
       <div className="bg-background border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-6 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-md bg-primary/10 text-primary flex items-center justify-center shadow-sm">
+          <div className="w-12 h-12 rounded-md bg-primary/10 text-primary flex items-center justify-center">
             <Upload size={24} />
           </div>
           <div>
@@ -267,7 +267,7 @@ export default function ManageVideos() {
 
       <div className="max-w-6xl mx-auto p-6 space-y-6">
         {/* ------------------- 1. SELECTION CARD ------------------- */}
-        <div className="bg-card rounded-3xl shadow-sm border border-border p-5">
+        <div className="bg-card rounded-3xl border border-border p-5">
           <div className="overflow-visible z-10">
             <h2 className="text-base font-bold mb-4 flex gap-2 text-muted-foreground items-center">
               <Layers size={18} /> Select options
@@ -322,7 +322,7 @@ export default function ManageVideos() {
         {selectedSubject && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Chapter Header */}
-            <div className="bg-card rounded-3xl shadow-sm border border-border p-6">
+            <div className="bg-card rounded-3xl border border-border p-6">
               <div>
                 <div className="form-control w-full">
                   <label className="label">
@@ -354,7 +354,7 @@ export default function ManageVideos() {
               {videoParts.map((part, index) => (
                 <div
                   key={index}
-                  className="bg-card rounded-3xl shadow-sm border border-border relative group overflow-visible"
+                  className="bg-card rounded-3xl border border-border relative group overflow-visible"
                 >
                   {/* Remove Button (Floating) */}
                   {videoParts.length > 1 && (

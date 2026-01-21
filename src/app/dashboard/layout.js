@@ -23,7 +23,7 @@ export default function DashboardLayout({ children }) {
               className="fixed inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => setSidebarOpen(false)}
             />
-            <div className="fixed inset-y-0 left-0 w-64 bg-background shadow-2xl animate-in slide-in-from-left duration-200 border-r border-border">
+            <div className="fixed inset-y-0 left-0 w-64 bg-background animate-in slide-in-from-left duration-200 border-r border-border">
               <AppSidebar onLinkClick={() => setSidebarOpen(false)} />
             </div>
           </div>

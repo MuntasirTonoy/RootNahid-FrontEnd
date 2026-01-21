@@ -171,7 +171,7 @@ export default function CoursePage({ params }) {
               className={`px-6 py-3.5 md:px-10 md:py-4 rounded-md font-bold text-sm md:text-lg transition-all duration-300 flex items-center justify-center gap-2
                   ${
                     selectedSubjects.length > 0
-                      ? "bg-primary text-primary-foreground hover:bg-primary-hover shadow-lg shadow-primary/25 hover:shadow-primary/40 active:scale-95"
+                      ? "bg-primary text-primary-foreground hover:bg-primary-hover   hover:shadow-primary/40 active:scale-95"
                       : "bg-surface text-muted-foreground cursor-not-allowed"
                   }`}
             >

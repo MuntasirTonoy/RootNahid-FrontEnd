@@ -100,7 +100,7 @@ export default function Home() {
                   </button>
                   <Link
                     href="/free-trial"
-                    className="px-8 md:px-12 py-4 bg-surface hover:bg-surface-hover text-foreground font-bold text-md lg:text-lg rounded-md border border-border transition-colors flex items-center justify-center hover:-translate-y-1 hover:shadow-lg hover:cursor-pointer"
+                    className="px-8 md:px-12 py-4 bg-surface hover:bg-surface-hover text-foreground font-bold text-md lg:text-lg rounded-md border border-border transition-colors flex items-center justify-center hover:-translate-y-1 hover:cursor-pointer"
                   >
                     Free Trial
                   </Link>
@@ -181,7 +181,7 @@ export default function Home() {
         {/* Stats Section */}
         <section className="py-12 md:py-20 bg-background transition-colors duration-300">
           <div className="container-custom">
-            <div className="bg-surface rounded-3xl p-8 md:p-12 shadow-sm border border-border grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 transition-colors duration-300">
+            <div className="bg-surface rounded-3xl p-8 md:p-12 border border-border grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 transition-colors duration-300">
               <div className="text-center">
                 <h3 className="text-4xl md:text-5xl font-extrabold text-primary mb-2">
                   5k+

@@ -222,7 +222,7 @@ function LearnPageContent({ courseId, subjectId }) {
               {/* Hamburger Button for Mobile */}
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-md bg-surface shadow-sm border border-border text-foreground hover:bg-muted transition-colors flex-shrink-0 my-2"
+                className="lg:hidden p-2 rounded-md bg-surface border border-border text-foreground hover:bg-muted transition-colors flex-shrink-0 my-2"
               >
                 <Menu size={24} />
               </button>

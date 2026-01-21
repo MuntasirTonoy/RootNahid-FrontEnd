@@ -277,7 +277,7 @@ const AddCourse = () => {
             <ArrowLeft size={20} />
           </Link>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
               <Layout size={20} />
             </div>
             <div>
@@ -291,7 +291,7 @@ const AddCourse = () => {
       </div>
 
       <div className="max-w-4xl mx-auto pt-3 md:p-6 space-y-6">
-        <div className="bg-card rounded-3xl shadow-sm border border-border p-5 md:p-8 space-y-8">
+        <div className="bg-card rounded-3xl border border-border p-5 md:p-8 space-y-8">
           {/* Title Input */}
           <div className="form-control w-full">
             <label className="label">
@@ -434,7 +434,7 @@ const AddCourse = () => {
                     onClick={handleAddSubject}
                     disabled={!selectedSubjectId}
                     type="button"
-                    className="w-full p-4 rounded-md border border-transparent bg-primary text-primary-foreground font-bold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                    className="w-full p-4 rounded-md border border-transparent bg-primary text-primary-foreground font-bold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-md flex items-center justify-center gap-2"
                   >
                     <Plus size={20} />
                     <span>add</span>
@@ -449,7 +449,7 @@ const AddCourse = () => {
                 {addedSubjects.map((subj, idx) => (
                   <div
                     key={idx}
-                    className="flex justify-between items-center bg-card p-4 rounded-md border border-border shadow-sm group hover:border-primary/30 transition-all"
+                    className="flex justify-between items-center bg-card p-4 rounded-md border border-border group hover:border-primary/30 transition-all"
                   >
                     <div>
                       <h4 className="font-bold text-sm text-foreground">
@@ -486,7 +486,7 @@ const AddCourse = () => {
                 !selectedYear ||
                 addedSubjects.length === 0
               }
-              className="group relative w-full flex items-center justify-center gap-3 rounded-xl bg-foreground text-background px-6 py-4 font-bold text-base sm:text-lg shadow-xl hover:bg-primary hover:text-white hover:shadow-primary/40 active:scale-[0.98] transition-all duration-300 disabled:opacity-40 disabled:pointer-events-none disabled:shadow-none hover:-translate-y-1 overflow-hidden"
+              className="group relative w-full flex items-center justify-center gap-3 rounded-xl bg-foreground text-background px-6 py-4 font-bold text-base sm:text-lg  hover:bg-primary hover:text-white hover:shadow-primary/40 active:scale-[0.98] transition-all duration-300 disabled:opacity-40 disabled:pointer-events-none disabled:shadow-none hover:-translate-y-1 overflow-hidden"
             >
               {loading ? (
                 <span className="loading loading-spinner loading-md text-current"></span>

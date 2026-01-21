@@ -115,7 +115,7 @@ export default function ProfilePage() {
 
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
             {/* Avatar Section */}
-            <div className="bg-card rounded-3xl shadow-sm border border-border h-fit p-6">
+            <div className="bg-card rounded-3xl border border-border h-fit p-6">
               <div className="flex flex-col items-center text-center">
                 <div className="relative group mb-4">
                   <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden ring-4 ring-primary ring-offset-4 ring-offset-card transition-all">
@@ -143,7 +143,7 @@ export default function ProfilePage() {
 
             {/* Details Section */}
             <div className="md:col-span-2 space-y-6 md:space-y-8">
-              <div className="bg-card rounded-3xl shadow-sm border border-border p-5 md:p-8">
+              <div className="bg-card rounded-3xl border border-border p-5 md:p-8">
                 <h3 className="text-lg md:text-xl font-bold text-foreground mb-6">
                   Account Details
                 </h3>
@@ -236,7 +236,7 @@ export default function ProfilePage() {
               </div>
 
               {/* Saved Videos Section */}
-              <div className="bg-card rounded-3xl shadow-sm border border-border p-5 md:p-8">
+              <div className="bg-surface rounded-3xl border border-border p-5 md:p-8">
                 <header className="flex justify-between items-center mb-6">
                   <h3 className="text-lg md:text-xl font-bold text-foreground flex items-center gap-2">
                     <Bookmark className="text-primary" size={24} />
@@ -262,7 +262,7 @@ export default function ProfilePage() {
                             ? `/learn/${video.subjectId.courseId}/${video.subjectId._id}?chapter=${encodeURIComponent(video.chapterName)}&part=${video._id}`
                             : "#"
                         }
-                        className="flex items-start gap-3 md:gap-4 p-4 rounded-2xl bg-surface/50 hover:bg-muted transition-all border border-border group"
+                        className="flex items-start gap-3 md:gap-4 p-4 rounded-2xl bg-primary/10 hover:bg-primary/20 transition-all border border-border group"
                       >
                         <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all shrink-0 mt-0.5 md:mt-0">
                           <PlayCircle size={20} className="md:w-6 md:h-6" />
@@ -276,7 +276,7 @@ export default function ProfilePage() {
                               Part {video.partNumber}
                             </span>
                           </div>
-                          <p className="text-xs md:text-sm text-muted-foreground line-clamp-1 opacity-70">
+                          <p className="text-xs md:text-sm text-foreground line-clamp-1 opacity-70">
                             {video.subjectId?.title || "Unknown Subject"} •{" "}
                             {video.chapterName}
                           </p>
@@ -288,7 +288,7 @@ export default function ProfilePage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground text-sm">
+                  <div className="text-center py-8 text-foreground text-sm">
                     <p>No saved lessons yet.</p>
                   </div>
                 )}
@@ -307,7 +307,7 @@ export default function ProfilePage() {
                 </h3>
                 <button
                   onClick={() => setShowAvatarModal(false)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface text-muted-foreground hover:text-foreground transition-colors"
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface text-foreground hover:text-foreground transition-colors"
                 >
                   <X size={20} />
                 </button>
