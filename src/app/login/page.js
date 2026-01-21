@@ -47,8 +47,9 @@ function LoginForm() {
     e.preventDefault();
     setLoading(true);
 
-    const email = e.target[0].value;
-    const password = e.target[1].value;
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email");
+    const password = formData.get("password");
 
     try {
       await login(email, password);
@@ -56,7 +57,15 @@ function LoginForm() {
       router.push(redirectPath);
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      let message = error.message;
+      if (
+        error.code === "auth/invalid-credential" ||
+        error.code === "auth/user-not-found" ||
+        error.code === "auth/wrong-password"
+      ) {
+        message = "Password or email wrong";
+      }
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -99,6 +108,7 @@ function LoginForm() {
                     <Mail size={20} />
                   </div>
                   <input
+                    name="email"
                     type="email"
                     placeholder="name@example.com"
                     className="block w-full pl-10 pr-3 py-3 border border-border rounded-md bg-surface focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all border-border outline-none"
@@ -128,6 +138,7 @@ function LoginForm() {
                     <Lock size={20} />
                   </div>
                   <input
+                    name="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     className="block w-full pl-10 pr-10 py-3 border border-border rounded-md bg-surface focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all border-border outline-none"

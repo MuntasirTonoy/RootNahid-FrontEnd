@@ -129,13 +129,13 @@ export default function Navbar() {
               <div className="flex items-center gap-3">
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-sm font-bold hover:bg-surface rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm font-bold hover:bg-surface rounded-md transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   href="/signup"
-                  className="bg-primary text-black font-bold px-5 py-2 text-sm rounded-lg hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5"
+                  className="bg-primary text-black font-bold px-5 py-2 text-sm rounded-md hover:bg-primary-hover transition-all hover:shadow-primary/40 hover:-translate-y-0.5"
                 >
                   Sign Up
                 </Link>
@@ -250,14 +250,14 @@ export default function Navbar() {
                     <Link
                       href="/login"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="w-full py-3 text-center font-bold hover:bg-surface rounded-xl border border-border"
+                      className="w-full py-3 text-center font-bold hover:bg-surface rounded-md border border-border"
                     >
                       Login
                     </Link>
                     <Link
                       href="/signup"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="w-full py-3 text-center font-bold bg-primary text-black rounded-xl hover:bg-primary-hover"
+                      className="w-full py-3 text-center font-bold bg-primary text-black rounded-md hover:bg-primary-hover"
                     >
                       Sign Up
                     </Link>
