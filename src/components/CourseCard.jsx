@@ -44,7 +44,7 @@ export default function CourseCard({ course }) {
         {/* Action - Direct Link - No Modal */}
         <Link
           href={`/course/${course.id}`}
-          className="relative w-full py-4 bg-foreground text-background font-bold rounded-xl hover:bg-primary hover:text-white transition-all duration-300 shadow-lg shadow-black/5 hover:shadow-primary/30 mt-auto flex items-center justify-center gap-2 group/btn overflow-hidden"
+          className="relative w-full py-4 bg-foreground text-background font-bold rounded-md hover:bg-primary hover:text-white transition-all duration-300 shadow-lg shadow-black/5 hover:shadow-primary/30 mt-auto flex items-center justify-center gap-2 group/btn overflow-hidden"
         >
           <span className="relative z-10">Enroll Now</span>
           <ArrowRight className="w-4 h-4 relative z-10 group-hover/btn:translate-x-1 transition-transform" />

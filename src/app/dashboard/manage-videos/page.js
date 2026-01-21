@@ -48,10 +48,21 @@ export default function ManageVideosList() {
         ),
       ]);
 
+      console.log("Videos fetched:", videosRes.data);
+      console.log("Subjects fetched:", subjectsRes.data);
+
       setVideos(videosRes.data);
       setAvailableSubjects(subjectsRes.data);
     } catch (error) {
       console.error("Error fetching data:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Fetch Error",
+        text:
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to load videos",
+      });
     } finally {
       setLoading(false);
     }
@@ -122,6 +133,17 @@ export default function ManageVideosList() {
       : url;
   };
 
+  // Helper to convert to Watch URL for "Source" button
+  const getWatchUrl = (url) => {
+    if (!url) return "#";
+    const regExp =
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11
+      ? `https://www.youtube.com/watch?v=${match[2]}`
+      : url;
+  };
+
   const handleUpdateVideo = async () => {
     if (!editingVideo.title || !editingVideo.videoUrl) {
       Swal.fire("Error", "Title and Video URL are required", "error");
@@ -164,7 +186,7 @@ export default function ManageVideosList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-sm">
+          <div className="w-12 h-12 rounded-md bg-primary/10 text-primary flex items-center justify-center shadow-sm">
             <Video size={24} />
           </div>
           <div>
@@ -203,13 +225,13 @@ export default function ManageVideosList() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="5" className="p-6 text-center">
+                <td colSpan="4" className="p-6 text-center">
                   Loading videos...
                 </td>
               </tr>
             ) : videos.length === 0 ? (
               <tr>
-                <td colSpan="5" className="p-6 text-center">
+                <td colSpan="4" className="p-6 text-center">
                   No videos found.
                 </td>
               </tr>
@@ -220,9 +242,52 @@ export default function ManageVideosList() {
                   className="hover:bg-muted/10 hover:cursor-pointer"
                 >
                   <td className="p-4 flex gap-4 items-center">
-                    <div className="w-10 h-10 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
-                      <PlayCircle size={20} />
-                    </div>
+                    {(() => {
+                      // 1. Robustly get the Subject ID string
+                      const rawSub = video.subjectId;
+                      const subjectIdString =
+                        typeof rawSub === "object" && rawSub !== null
+                          ? rawSub._id || rawSub.$oid
+                          : rawSub;
+
+                      // 2. Find the full subject details from the loaded subjects list
+                      // This list is known to have courseId populated correctly
+                      const matchedSubject = availableSubjects.find(
+                        (s) => s._id === subjectIdString,
+                      );
+
+                      const sId = matchedSubject?._id;
+                      const courseId =
+                        matchedSubject?.courseId?._id ||
+                        matchedSubject?.courseId;
+
+                      if (courseId && sId) {
+                        return (
+                          <Link
+                            href={`/learn/${courseId}/${sId}?chapter=${encodeURIComponent(video.chapterName)}&part=${video._id}`}
+                            target="_blank"
+                            className="w-10 h-10 rounded-lg bg-red-100/50 text-red-600 flex items-center justify-center shrink-0 hover:bg-red-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105"
+                            title="Play in App"
+                          >
+                            <PlayCircle size={20} />
+                          </Link>
+                        );
+                      }
+
+                      // Debugging info for the disabled state
+                      const reason = !matchedSubject
+                        ? "Subject not found"
+                        : "Course not linked";
+
+                      return (
+                        <div
+                          className="w-10 h-10 rounded-lg bg-muted text-muted-foreground flex items-center justify-center shrink-0 opacity-50 cursor-not-allowed"
+                          title={`Cannot play: ${reason}`}
+                        >
+                          <PlayCircle size={20} />
+                        </div>
+                      );
+                    })()}
                     <div>
                       <div className="font-bold text-sm block mb-1">
                         {video.title}
@@ -238,51 +303,21 @@ export default function ManageVideosList() {
                     </div>
                   </td>
                   <td>
-                    <div className="text-sm text-foreground mb-1">
+                    <div className="text-sm text-foreground">
                       {video.chapterName}
-                    </div>
-
-                    <div className="flex gap-3 mt-1 items-center flex-wrap">
-                      {(() => {
-                        const sId =
-                          typeof video.subjectId === "object"
-                            ? video.subjectId._id
-                            : video.subjectId;
-                        const fullSubject = availableSubjects.find(
-                          (s) => s._id === sId,
-                        );
-                        const courseId =
-                          fullSubject?.courseId?._id || fullSubject?.courseId;
-
-                        if (courseId && sId) {
-                          return (
-                            <Link
-                              href={`/learn/${courseId}/${sId}?chapter=${encodeURIComponent(video.chapterName)}&part=${video._id}`}
-                              target="_blank"
-                              className="text-primary hover:text-primary-hover flex items-center gap-1 text-xs font-bold bg-primary/5 px-2 py-1 rounded-md border border-primary/20 hover:bg-primary/10 transition-colors"
-                              title="Open in Player"
-                            >
-                              <MonitorPlay size={12} /> Player
-                            </Link>
-                          );
-                        }
-                        return null;
-                      })()}
-                      {video.noteLink && (
-                        <a
-                          href={video.noteLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-emerald-500 hover:text-emerald-600 flex items-center gap-1 text-xs font-medium"
-                          title="View Notes"
-                        >
-                          <FileText size={12} /> Notes
-                        </a>
-                      )}
                     </div>
                   </td>
                   <td className="pr-6 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      <a
+                        href={getWatchUrl(video.videoUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 hover:bg-primary/10 text-primary rounded-lg transition-colors"
+                        title="View Video Source"
+                      >
+                        <ExternalLink size={18} />
+                      </a>
                       <button
                         onClick={() => handleEditClick(video)}
                         className="p-2 hover:bg-blue-50 text-blue-500 rounded-lg transition-colors"
@@ -321,53 +356,51 @@ export default function ManageVideosList() {
                 <h3 className="font-bold text-sm line-clamp-1">
                   {video.title}
                 </h3>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[10px] text-muted-foreground">
                   {video.subjectId?.title || "Unknown"} • {video.chapterName}
                 </p>
               </div>
             </div>
 
-            <div className="flex justify-between items-center pt-2 mt-2">
+            <div className="flex flex-wrap gap-2 py-1">
               <span className="text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary px-2 py-1 rounded-md">
                 Part {video.partNumber}
               </span>
+              {video.noteLink && (
+                <a
+                  href={video.noteLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-[10px] font-bold bg-emerald-50 text-emerald-600 px-2 py-1 rounded-md border border-emerald-100"
+                >
+                  <FileText size={10} /> Notes
+                </a>
+              )}
+            </div>
 
-              <div className="flex gap-4 items-center">
-                {(() => {
-                  const sId =
-                    typeof video.subjectId === "object"
-                      ? video.subjectId._id
-                      : video.subjectId;
-                  const fullSubject = availableSubjects.find(
-                    (s) => s._id === sId,
-                  );
-                  const courseId =
-                    fullSubject?.courseId?._id || fullSubject?.courseId;
+            <div className="flex justify-between items-center pt-3 border-t border-border/50">
+              <a
+                href={getWatchUrl(video.videoUrl)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-md text-xs font-bold shadow-sm flex-1 justify-center"
+              >
+                <ExternalLink size={14} />
+                <span>Source</span>
+              </a>
 
-                  if (courseId && sId) {
-                    return (
-                      <Link
-                        href={`/learn/${courseId}/${sId}?chapter=${encodeURIComponent(video.chapterName)}&part=${video._id}`}
-                        target="_blank"
-                        className="text-primary hover:text-primary-hover"
-                      >
-                        <MonitorPlay size={18} />
-                      </Link>
-                    );
-                  }
-                  return null;
-                })()}
+              <div className="flex gap-2 items-center">
                 <button
                   onClick={() => handleEditClick(video)}
-                  className="text-blue-500 hover:text-blue-600"
+                  className="p-2 bg-blue-50 text-blue-500 rounded-md"
                 >
-                  <Edit size={18} />
+                  <Edit size={16} />
                 </button>
                 <button
                   onClick={() => handleDelete(video._id)}
-                  className="text-red-500 hover:text-red-600"
+                  className="p-2 bg-red-50 text-red-500 rounded-md"
                 >
-                  <Trash size={18} />
+                  <Trash size={16} />
                 </button>
               </div>
             </div>

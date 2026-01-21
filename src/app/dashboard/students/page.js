@@ -77,7 +77,7 @@ export default function StudentsPage() {
     <div className="space-y-6 px-4 sm:px-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+        <div className="w-12 h-12 rounded-md bg-primary/10 text-primary flex items-center justify-center">
           <Users size={24} />
         </div>
         <div>
@@ -96,7 +96,7 @@ export default function StudentsPage() {
         <input
           type="text"
           placeholder="Search students by name or email..."
-          className="block w-full pl-10 pr-3 py-3 border border-border rounded-xl bg-card focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+          className="block w-full pl-10 pr-3 py-3 border border-border rounded-md bg-card focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />

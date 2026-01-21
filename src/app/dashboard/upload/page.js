@@ -49,7 +49,7 @@ const CustomDropdown = ({
         <div
           tabIndex={0}
           role="button"
-          className="btn w-full justify-between bg-surface border-transparent hover:bg-muted text-foreground font-normal rounded-xl h-12"
+          className="btn w-full justify-between bg-surface border-transparent hover:bg-muted text-foreground font-normal rounded-md h-12"
         >
           <span className={!value ? "text-muted-foreground" : ""}>
             {value || placeholder}
@@ -60,7 +60,7 @@ const CustomDropdown = ({
         {!disabled && (
           <ul
             tabIndex={0}
-            className="dropdown-content menu bg-card rounded-xl z-50 w-full p-2 shadow-xl border border-border max-h-60 overflow-y-auto flex-nowrap block text-foreground"
+            className="dropdown-content menu bg-card rounded-md z-50 w-full p-2 shadow-xl border border-border max-h-60 overflow-y-auto flex-nowrap block text-foreground"
           >
             {options.map((opt, idx) => (
               <li key={idx} onClick={() => handleSelect(opt.value)}>
@@ -253,7 +253,7 @@ export default function ManageVideos() {
       {/* ------------------- HEADER ------------------- */}
       <div className="bg-background border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-6 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-sm">
+          <div className="w-12 h-12 rounded-md bg-primary/10 text-primary flex items-center justify-center shadow-sm">
             <Upload size={24} />
           </div>
           <div>
@@ -334,7 +334,7 @@ export default function ManageVideos() {
                   <input
                     type="text"
                     placeholder="e.g. Chapter 1: Differential Calculus"
-                    className="w-full text-base p-4 rounded-xl border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
+                    className="w-full text-base p-4 rounded-md border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
                     value={chapterName}
                     onChange={(e) => setChapterName(e.target.value)}
                   />
@@ -393,7 +393,7 @@ export default function ManageVideos() {
                             </label>
                             <input
                               type="text"
-                              className="w-full text-sm p-3 rounded-xl border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
+                              className="w-full text-sm p-3 rounded-md border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
                               placeholder={`Part ${part.partNumber}`}
                               value={part.title}
                               onChange={(e) =>
@@ -407,7 +407,7 @@ export default function ManageVideos() {
                             </label>
                             <input
                               type="text"
-                              className="w-full text-sm p-3 rounded-xl border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
+                              className="w-full text-sm p-3 rounded-md border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
                               placeholder="https://youtube.com/..."
                               value={part.videoUrl}
                               onChange={(e) =>
@@ -424,7 +424,7 @@ export default function ManageVideos() {
                           </label>
                           <input
                             type="text"
-                            className="w-full text-sm p-3 rounded-xl border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
+                            className="w-full text-sm p-3 rounded-md border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
                             placeholder="Drive/Dropbox Link"
                             value={part.noteLink}
                             onChange={(e) =>
@@ -438,7 +438,7 @@ export default function ManageVideos() {
                           <label className="label label-text-alt text-muted-foreground font-semibold uppercase flex gap-1 items-center">
                             <DollarSign size={12} /> Access Type
                           </label>
-                          <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border-none w-full md:w-fit h-[46px]">
+                          <div className="flex items-center gap-3 p-3 rounded-md bg-surface border-none w-full md:w-fit h-[46px]">
                             <span
                               className={`text-xs font-bold px-2 transition-colors ${!part.isFree ? "text-error" : "text-muted-foreground/30"}`}
                             >

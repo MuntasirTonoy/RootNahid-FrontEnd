@@ -154,7 +154,7 @@ export default function ManageSubjects() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+          <div className="w-12 h-12 rounded-md bg-primary/10 text-primary flex items-center justify-center">
             <BookOpen size={24} />
           </div>
           <div>
@@ -175,7 +175,7 @@ export default function ManageSubjects() {
       </div>
 
       {/* ================= DESKTOP TABLE ================= */}
-      <div className="hidden md:block bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+      <div className="hidden md:block bg-card rounded-md border border-border overflow-hidden shadow-sm">
         <table className="w-full">
           <thead className="bg-muted/30 border-b border-border text-xs uppercase text-muted-foreground font-semibold">
             <tr>
@@ -270,7 +270,7 @@ export default function ManageSubjects() {
           subjects.map((s) => (
             <div
               key={s._id}
-              className="bg-card border border-border rounded-xl p-4 shadow-sm space-y-3"
+              className="bg-card border border-border rounded-md p-4 shadow-sm space-y-3"
             >
               <div className="flex justify-between items-start">
                 <div>

@@ -6,6 +6,7 @@ import { notFound, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import Swal from "sweetalert2";
+import { ArrowRight, X } from "lucide-react";
 
 export default function CoursePage({ params }) {
   // Unwrap params using React.use for Next.js 15+ compatibility
@@ -107,9 +108,9 @@ export default function CoursePage({ params }) {
         <div className="container-custom relative">
           <Link
             href="/"
-            className="absolute right-0 top-0 p-2 rounded-full hover:bg-gray-100 text-gray-400"
+            className="absolute right-0 top-0 p-2 rounded-full hover:bg-surface text-muted-foreground transition-colors"
           >
-            ✕
+            <X className="w-6 h-6" />
           </Link>
 
           <header className="mb-12">
@@ -117,12 +118,11 @@ export default function CoursePage({ params }) {
               {course.title}
             </h1>
             <p className="text-lg text-gray-500">
-              Build your personalized mathematics curriculum. Choose the
-              subjects you wish to master.
+              Select the subjects you want to purchase.
             </p>
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-32">
             {course.subjects.length > 0 ? (
               course.subjects.map((subject) => {
                 const isPurchased =
@@ -139,7 +139,7 @@ export default function CoursePage({ params }) {
                 );
               })
             ) : (
-              <div className="col-span-3 text-center text-gray-400">
+              <div className="col-span-full text-center text-gray-400 py-20">
                 No subjects available for this course yet.
               </div>
             )}
@@ -148,29 +148,37 @@ export default function CoursePage({ params }) {
       </main>
 
       {/* Bottom Sticky Payment Bar */}
-      <div className="fixed bottom-0 bg-primary-foreground left-0 right-0 bg-base-100  p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-        <div className="container-custom flex justify-between items-center">
-          <div>
-            <p className="text-gray-400 font-bold text-xs uppercase tracking-wider mb-1">
-              Total Amount
-            </p>
-            <h3 className="text-3xl font-extrabold text-primary">
-              {totalAmount} TK
-            </h3>
-          </div>
+      <div className="fixed py-3 bottom-0 left-0 right-0 bg-background/80 backdrop-blur-xl border-t border-border z-50 transition-colors duration-300">
+        <div className="container-custom py-4 md:py-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col">
+              <span className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                Total Amount
+              </span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl md:text-4xl font-black text-primary leading-none">
+                  {totalAmount}
+                </span>
+                <span className="text-xs md:text-sm font-bold text-muted-foreground">
+                  TK
+                </span>
+              </div>
+            </div>
 
-          <button
-            onClick={handleProceed}
-            disabled={selectedSubjects.length === 0}
-            className={`px-8 py-4 rounded-xl font-bold text-lg transition-all
-                ${
-                  selectedSubjects.length > 0
-                    ? "bg-primary text-white hover:bg-primary-hover shadow-lg shadow-primary/30"
-                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                }`}
-          >
-            Proceed to Pay
-          </button>
+            <button
+              onClick={handleProceed}
+              disabled={selectedSubjects.length === 0}
+              className={`px-6 py-3.5 md:px-10 md:py-4 rounded-md font-bold text-sm md:text-lg transition-all duration-300 flex items-center justify-center gap-2
+                  ${
+                    selectedSubjects.length > 0
+                      ? "bg-primary text-primary-foreground hover:bg-primary-hover shadow-lg shadow-primary/25 hover:shadow-primary/40 active:scale-95"
+                      : "bg-surface text-muted-foreground cursor-not-allowed"
+                  }`}
+            >
+              <span>Proceed to Pay</span>
+              <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

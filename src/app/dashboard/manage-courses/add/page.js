@@ -58,7 +58,7 @@ const CustomDropdown = ({
         <button
           type="button"
           onClick={() => !disabled && setIsOpen(!isOpen)}
-          className={`w-full flex justify-between items-center px-4 py-4 bg-surface border border-transparent hover:bg-surface-hover text-foreground font-medium rounded-xl transition-all ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+          className={`w-full flex justify-between items-center px-4 py-4 bg-surface border border-transparent hover:bg-surface-hover text-foreground font-medium rounded-md transition-all ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
         >
           <span className={!value ? "text-muted-foreground" : ""}>
             {value || placeholder}
@@ -70,7 +70,7 @@ const CustomDropdown = ({
         </button>
 
         {isOpen && !disabled && (
-          <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-card rounded-xl shadow-xl border border-border max-h-60 overflow-y-auto z-[100]">
+          <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-card rounded-md shadow-xl border border-border max-h-60 overflow-y-auto z-[100]">
             <ul className="space-y-1">
               {options.map((opt, idx) => (
                 <li key={idx} onClick={() => handleSelect(opt.value)}>
@@ -290,8 +290,8 @@ const AddCourse = () => {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
-        <div className="bg-card rounded-3xl shadow-sm border border-border p-8 space-y-8">
+      <div className="max-w-4xl mx-auto pt-3 md:p-6 space-y-6">
+        <div className="bg-card rounded-3xl shadow-sm border border-border p-5 md:p-8 space-y-8">
           {/* Title Input */}
           <div className="form-control w-full">
             <label className="label">
@@ -303,7 +303,7 @@ const AddCourse = () => {
             <input
               type="text"
               placeholder="e.g. Master Algebra"
-              className="w-full text-base p-4 rounded-xl border border-transparent bg-surface hover:bg-surface-hover outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+              className="w-full text-base p-4 rounded-md border border-transparent bg-surface hover:bg-surface-hover outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground placeholder:text-muted-foreground/50"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
@@ -320,7 +320,7 @@ const AddCourse = () => {
             <input
               type="text"
               placeholder="https://..."
-              className="w-full text-base p-4 rounded-xl border border-transparent bg-surface hover:bg-surface-hover outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+              className="w-full text-base p-4 rounded-md border border-transparent bg-surface hover:bg-surface-hover outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground placeholder:text-muted-foreground/50"
               value={thumbnail}
               onChange={(e) => setThumbnail(e.target.value)}
             />
@@ -399,7 +399,7 @@ const AddCourse = () => {
                   <input
                     type="number"
                     placeholder="0.00"
-                    className="w-full text-sm p-4 rounded-xl border border-transparent bg-surface hover:bg-surface-hover outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                    className="w-full text-sm p-4 rounded-md border border-transparent bg-surface hover:bg-surface-hover outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground placeholder:text-muted-foreground/50"
                     value={subjectPrice}
                     onChange={(e) => setSubjectPrice(e.target.value)}
                   />
@@ -416,21 +416,30 @@ const AddCourse = () => {
                   <input
                     type="number"
                     placeholder="0.00"
-                    className="w-full text-sm p-4 rounded-xl border border-transparent bg-surface hover:bg-surface-hover outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                    className="w-full text-sm p-4 rounded-md border border-transparent bg-surface hover:bg-surface-hover outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground placeholder:text-muted-foreground/50"
                     value={subjectOfferPrice}
                     onChange={(e) => setSubjectOfferPrice(e.target.value)}
                   />
                 </div>
               </div>
 
-              <div className="md:col-span-2 pb-1">
-                <button
-                  onClick={handleAddSubject}
-                  disabled={!selectedSubjectId}
-                  className="btn btn-primary rounded-xl w-full h-[52px]"
-                >
-                  <Plus size={18} /> Add
-                </button>
+              <div className="md:col-span-2">
+                <div className="form-control w-full">
+                  <label className="label">
+                    <span className="label-text font-medium text-muted-foreground uppercase text-xs tracking-wider">
+                      Action
+                    </span>
+                  </label>
+                  <button
+                    onClick={handleAddSubject}
+                    disabled={!selectedSubjectId}
+                    type="button"
+                    className="w-full p-4 rounded-md border border-transparent bg-primary text-primary-foreground font-bold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                  >
+                    <Plus size={20} />
+                    <span>add</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -440,7 +449,7 @@ const AddCourse = () => {
                 {addedSubjects.map((subj, idx) => (
                   <div
                     key={idx}
-                    className="flex justify-between items-center bg-card p-4 rounded-xl border border-border shadow-sm group hover:border-primary/30 transition-all"
+                    className="flex justify-between items-center bg-card p-4 rounded-md border border-border shadow-sm group hover:border-primary/30 transition-all"
                   >
                     <div>
                       <h4 className="font-bold text-sm text-foreground">
@@ -467,7 +476,7 @@ const AddCourse = () => {
             )}
           </div>
 
-          <div className="pt-6">
+          <div className="pt-6 sm:pt-8">
             <button
               onClick={handleSubmit}
               disabled={
@@ -477,14 +486,21 @@ const AddCourse = () => {
                 !selectedYear ||
                 addedSubjects.length === 0
               }
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-foreground text-background px-8 py-4 font-bold text-lg shadow-lg hover:bg-primary hover:text-white hover:shadow-primary/30 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
+              className="group relative w-full flex items-center justify-center gap-3 rounded-xl bg-foreground text-background px-6 py-4 font-bold text-base sm:text-lg shadow-xl hover:bg-primary hover:text-white hover:shadow-primary/40 active:scale-[0.98] transition-all duration-300 disabled:opacity-40 disabled:pointer-events-none disabled:shadow-none hover:-translate-y-1 overflow-hidden"
             >
               {loading ? (
-                <span className="loading loading-spinner loading-sm text-current"></span>
+                <span className="loading loading-spinner loading-md text-current"></span>
               ) : (
-                <Save size={20} />
+                <>
+                  <Save
+                    size={22}
+                    className="group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <span>
+                    Create Course with {addedSubjects.length} Subjects
+                  </span>
+                </>
               )}
-              Create Course with {addedSubjects.length} Subjects
             </button>
           </div>
         </div>

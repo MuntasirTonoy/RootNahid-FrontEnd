@@ -58,7 +58,7 @@ const CustomDropdown = ({
         <button
           type="button"
           onClick={() => !disabled && setIsOpen(!isOpen)}
-          className={`w-full flex justify-between items-center px-4 py-3 bg-surface border border-transparent hover:bg-muted text-foreground font-normal rounded-xl transition-all ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+          className={`w-full flex justify-between items-center px-4 py-3 bg-surface border border-transparent hover:bg-muted text-foreground font-normal rounded-md transition-all ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
         >
           <span className={!value ? "text-muted-foreground" : ""}>
             {value || placeholder}
@@ -70,7 +70,7 @@ const CustomDropdown = ({
         </button>
 
         {isOpen && !disabled && (
-          <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-card rounded-xl shadow-xl border border-border max-h-60 overflow-y-auto z-[100]">
+          <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-card rounded-md shadow-xl border border-border max-h-60 overflow-y-auto z-[100]">
             <ul className="space-y-1">
               {options.map((opt, idx) => (
                 <li key={idx} onClick={() => handleSelect(opt.value)}>
@@ -304,9 +304,9 @@ const ManageVideos = () => {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <div className="max-w-6xl mx-auto pt-4 md:p-6 space-y-6">
         {/* ------------------- 1. SELECTION CARD ------------------- */}
-        <div className="bg-card rounded-3xl shadow-sm border border-border p-5">
+        <div className="bg-card rounded-3xl shadow-sm border border-border p-4 md:p-5">
           <div className="overflow-visible z-10">
             <h2 className="text-base font-bold mb-4 flex gap-2 text-muted-foreground items-center">
               <Layers size={18} /> Select options{" "}
@@ -364,7 +364,7 @@ const ManageVideos = () => {
         {selectedSubjectId && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Chapter Header */}
-            <div className="bg-card rounded-3xl shadow-sm border border-border p-6">
+            <div className="bg-card rounded-3xl shadow-sm border border-border p-4 md:p-6">
               <div>
                 <div className="form-control w-full">
                   <label className="label">
@@ -376,7 +376,7 @@ const ManageVideos = () => {
                   <input
                     type="text"
                     placeholder="e.g. Chapter 1: Differential Calculus"
-                    className="w-full text-base p-4 rounded-xl border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
+                    className="w-full text-base p-4 rounded-md border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
                     value={chapterName}
                     onChange={(e) => setChapterName(e.target.value)}
                   />
@@ -435,7 +435,7 @@ const ManageVideos = () => {
                             </label>
                             <input
                               type="text"
-                              className="w-full text-sm p-3 rounded-xl border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
+                              className="w-full text-sm p-3 rounded-md border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
                               placeholder={`Part ${part.partNumber}`}
                               value={part.title}
                               onChange={(e) =>
@@ -449,7 +449,7 @@ const ManageVideos = () => {
                             </label>
                             <input
                               type="text"
-                              className="w-full text-sm p-3 rounded-xl border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
+                              className="w-full text-sm p-3 rounded-md border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
                               placeholder="https://youtube.com/..."
                               value={part.videoUrl}
                               onChange={(e) =>
@@ -466,7 +466,7 @@ const ManageVideos = () => {
                           </label>
                           <input
                             type="text"
-                            className="w-full text-sm p-3 rounded-xl border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
+                            className="w-full text-sm p-3 rounded-md border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
                             placeholder="Drive/Dropbox Link"
                             value={part.noteLink}
                             onChange={(e) =>
@@ -481,7 +481,7 @@ const ManageVideos = () => {
                             <FileText size={12} /> Description
                           </label>
                           <textarea
-                            className="w-full text-sm p-3 rounded-xl border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground min-h-[80px]"
+                            className="w-full text-sm p-3 rounded-md border border-transparent bg-surface outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground min-h-[80px]"
                             placeholder="Brief description of this video part..."
                             value={part.description || ""}
                             onChange={(e) =>
@@ -495,7 +495,7 @@ const ManageVideos = () => {
                           <label className="label label-text-alt text-muted-foreground font-semibold uppercase flex gap-1 items-center">
                             <DollarSign size={12} /> Access Type
                           </label>
-                          <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border-none w-full md:w-fit h-[46px]">
+                          <div className="flex items-center gap-3 p-3 rounded-md bg-surface border-none w-full md:w-fit h-[46px]">
                             <span
                               className={`text-xs font-bold px-2 transition-colors ${!part.isFree ? "text-error" : "text-muted-foreground/30"}`}
                             >
@@ -524,7 +524,7 @@ const ManageVideos = () => {
 
               <button
                 onClick={addPart}
-                className="flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground w-full hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5 transition-all"
+                className="flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 font-semibold text-primary-foreground w-full hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5 transition-all"
               >
                 <Plus size={20} />
                 Add Another Video Part
@@ -557,7 +557,7 @@ const ManageVideos = () => {
 
           <div className="flex gap-3 w-full md:w-auto">
             <button
-              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 font-semibold transition-all flex-1 md:flex-none"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-md border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 font-semibold transition-all flex-1 md:flex-none"
               onClick={() => {
                 setChapterName("");
                 setVideoParts([
@@ -576,7 +576,7 @@ const ManageVideos = () => {
             <button
               onClick={handleSubmit}
               disabled={loading || !selectedSubjectId}
-              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-2.5 font-semibold text-primary-foreground flex-1 md:flex-none min-w-[160px] shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
+              className="flex items-center justify-center gap-2 rounded-md bg-primary px-8 py-2.5 font-semibold text-primary-foreground flex-1 md:flex-none min-w-[160px] shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
             >
               {loading ? (
                 <span className="loading loading-spinner loading-sm"></span>

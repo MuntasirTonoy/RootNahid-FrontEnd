@@ -7,8 +7,6 @@ import {
   Calendar,
   Plus,
   Trash,
-  DollarSign,
-  Tag,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -228,7 +226,7 @@ export default function CourseEditModal({
                     Department
                   </label>
                   <select
-                    className="select select-bordered w-full rounded-md text-sm bg-background border-border focus:border-primary p-3"
+                    className="select select-bordered w-full rounded-md text-sm bg-background border-border focus:border-primary p-3 text-foreground dark:bg-card"
                     value={formData.department}
                     onChange={(e) =>
                       setFormData({
@@ -239,11 +237,15 @@ export default function CourseEditModal({
                     }
                     required
                   >
-                    <option value="" disabled>
+                    <option value="" disabled className="text-muted-foreground">
                       Select Dept
                     </option>
                     {departmentOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
+                      <option
+                        key={opt.value}
+                        value={opt.value}
+                        className="text-foreground bg-background"
+                      >
                         {opt.label}
                       </option>
                     ))}
@@ -258,7 +260,7 @@ export default function CourseEditModal({
                     </div>
                   </label>
                   <select
-                    className="select select-bordered w-full rounded-md text-sm bg-background border-border focus:border-primary p-3"
+                    className="select select-bordered w-full rounded-md text-sm bg-background border-border focus:border-primary p-3 text-foreground dark:bg-card"
                     value={formData.yearLevel}
                     disabled={!formData.department}
                     onChange={(e) =>
@@ -269,11 +271,15 @@ export default function CourseEditModal({
                     }
                     required
                   >
-                    <option value="" disabled>
+                    <option value="" disabled className="text-muted-foreground">
                       Select Year
                     </option>
                     {yearOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
+                      <option
+                        key={opt.value}
+                        value={opt.value}
+                        className="text-foreground bg-background"
+                      >
                         {opt.label}
                       </option>
                     ))}
@@ -298,14 +304,20 @@ export default function CourseEditModal({
                     Add Subject
                   </label>
                   <select
-                    className="select select-bordered select-sm w-full rounded-md text-xs"
+                    className="select select-bordered select-sm w-full rounded-md text-xs bg-background text-foreground border-border dark:bg-card"
                     value={selectedSubjectId}
                     onChange={(e) => setSelectedSubjectId(e.target.value)}
                     disabled={!formData.department || !formData.yearLevel}
                   >
-                    <option value="">Select...</option>
+                    <option value="" className="text-muted-foreground">
+                      Select...
+                    </option>
                     {subjectOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
+                      <option
+                        key={opt.value}
+                        value={opt.value}
+                        className="text-foreground bg-background"
+                      >
                         {opt.label}
                       </option>
                     ))}
@@ -317,7 +329,7 @@ export default function CourseEditModal({
                   </label>
                   <input
                     type="number"
-                    className="input input-bordered input-sm w-full rounded-md text-xs"
+                    className="input input-bordered input-sm w-full rounded-md text-xs bg-background text-foreground border-border dark:bg-card p-3"
                     placeholder="0.00"
                     value={subjectPrice}
                     onChange={(e) => setSubjectPrice(e.target.value)}
@@ -329,7 +341,7 @@ export default function CourseEditModal({
                   </label>
                   <input
                     type="number"
-                    className="input input-bordered input-sm w-full rounded-md text-xs"
+                    className="input input-bordered input-sm w-full rounded-md text-xs bg-background text-foreground border-border dark:bg-card p-3"
                     placeholder="0.00"
                     value={subjectOfferPrice}
                     onChange={(e) => setSubjectOfferPrice(e.target.value)}
@@ -371,7 +383,7 @@ export default function CourseEditModal({
                       <button
                         type="button"
                         onClick={() => handleRemoveSubject(subj.subjectId)}
-                        className="btn btn-ghost btn-xs text-error hover:bg-error/10 rounded-md"
+                        className="btn btn-ghost btn-xs bg-red-500 p-2 text-white hover:bg-error/10 rounded-md"
                       >
                         <Trash size={14} />
                       </button>

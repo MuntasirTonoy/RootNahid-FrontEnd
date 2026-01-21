@@ -10,7 +10,7 @@ export default function SubjectCard({
   return (
     <div
       onClick={isPurchased ? null : onClick}
-      className={`relative p-8 rounded-2xl border transition-all duration-200 flex flex-col justify-between h-full
+      className={`relative p-4 md:p-6 rounded-md border transition-all duration-200 flex flex-col justify-between h-full
         ${
           isPurchased
             ? "bg-muted/10 border-border opacity-70 cursor-not-allowed"
@@ -22,28 +22,20 @@ export default function SubjectCard({
         }`}
     >
       {isPurchased && (
-        <div className="absolute top-4 right-4 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-md z-10">
+        <div className="absolute top-2 right-2 bg-green-500 text-[10px] text-white font-bold px-1.5 py-0.5 rounded-md z-10">
           Purchased
         </div>
       )}
 
-      <div className="flex justify-between items-start mb-6">
-        <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center text-2xl font-bold text-foreground">
-          {/* Placeholder for actual icons based on subject.icon */}
-          {subject.icon === "pi" && "∑"}
-          {subject.icon === "calc" && "∫"}
-          {subject.icon === "grid" && "#"}
-          {!subject.icon && "📚"}
-        </div>
-
+      <div className="flex justify-between items-start mb-4">
         {!isPurchased && (
           <div
-            className={`w-6 h-6 rounded-full border flex items-center justify-center transition-colors
+            className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors
           ${isSelected ? "bg-primary border-primary" : "border-border"}`}
           >
             {isSelected && (
               <svg
-                className="w-4 h-4 text-white"
+                className="w-3 h-3 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -60,23 +52,25 @@ export default function SubjectCard({
         )}
       </div>
 
-      <div className="mb-6">
-        <h3 className="text-xl font-bold text-card-foreground mb-2">
+      <div className="mb-4">
+        <h3 className="text-base md:text-lg font-bold text-card-foreground mb-1 line-clamp-1">
           {subject.title}
         </h3>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <p className="text-[11px] md:text-xs text-muted-foreground leading-relaxed line-clamp-2">
           {subject.description}
         </p>
       </div>
 
-      <div className="flex items-center justify-between mt-4 border-t border-border pt-4">
-        <div className="flex items-center gap-3">
-          <span className="text-lg font-bold text-primary">
+      <div className="flex items-center justify-between mt-auto border-t border-border pt-4">
+        <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
+          <span className="text-sm md:text-base font-bold text-primary">
             {subject.price} TK
           </span>
-          <span className="text-sm text-muted-foreground/60 line-through">
-            {subject.originalPrice} TK
-          </span>
+          {subject.originalPrice && (
+            <span className="text-[10px] md:text-xs text-muted-foreground/60 line-through">
+              {subject.originalPrice} TK
+            </span>
+          )}
         </div>
       </div>
     </div>

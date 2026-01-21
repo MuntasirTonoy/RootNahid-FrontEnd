@@ -48,7 +48,7 @@ export default function AboutPage() {
                     </div>
                   </div>
 
-                  <div className="bg-surface p-6 rounded-xl border-l-4 border-primary italic text-muted-foreground font-medium">
+                  <div className="bg-surface p-6 rounded-md border-l-4 border-primary italic text-muted-foreground font-medium">
                     "Learn smart. Learn strong. Learn from the root — with Root to Nahid."
                   </div>
                 </div>
@@ -146,7 +146,7 @@ export default function AboutPage() {
                   <Link 
                     href="https://www.youtube.com/@RoottoNahid?sub_confirmation=1" 
                     target="_blank"
-                    className="w-full bg-primary hover:bg-primary-hover text-primary-foreground border-none shadow-sm flex justify-center items-center gap-2 py-3 rounded-xl font-bold transition-all">
+                    className="w-full bg-primary hover:bg-primary-hover text-primary-foreground border-none shadow-sm flex justify-center items-center gap-2 py-3 rounded-md font-bold transition-all">
                     <Youtube size={20} />
                     Subscribe Now
                   </Link>
@@ -165,7 +165,7 @@ function SocialLink({ href, icon, title, color, bgColor }) {
     <Link 
       href={href} 
       target="_blank"
-      className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary/30 hover:shadow-md transition-all group bg-card"
+      className="flex items-center gap-4 p-4 rounded-md border border-border hover:border-primary/30 hover:shadow-md transition-all group bg-card"
     >
       <div className={`w-12 h-12 rounded-full ${bgColor} flex items-center justify-center ${color} group-hover:scale-110 transition-transform`}>
         {icon}

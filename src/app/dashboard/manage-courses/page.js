@@ -112,7 +112,7 @@ export default function ManageCourses() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+          <div className="w-12 h-12 rounded-md bg-primary/10 text-primary flex items-center justify-center">
             <SquareChartGantt size={24} />
           </div>
           <div>
@@ -133,7 +133,7 @@ export default function ManageCourses() {
       </div>
 
       {/* ================= DESKTOP TABLE ================= */}
-      <div className="hidden md:block bg-card rounded-xl border border-border overflow-hidden">
+      <div className="hidden md:block bg-card rounded-md border border-border overflow-hidden">
         <table className="w-full">
           <thead className="bg-muted/3 text-xs uppercase">
             <tr>
@@ -193,7 +193,7 @@ export default function ManageCourses() {
             <div className="flex gap-3 items-center">
               <img
                 src={c.thumbnail}
-                className="w-14 h-14 rounded-xl object-cover"
+                className="w-14 h-14 rounded-md object-cover"
               />
               <div>
                 <h3 className="font-bold">{c.title}</h3>
@@ -205,13 +205,13 @@ export default function ManageCourses() {
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => openModal(c)}
-                className="flex-1 py-2 rounded-xl bg-blue-50 text-blue-600 font-medium"
+                className="flex-1 py-2 rounded-md bg-blue-50 text-blue-600 font-medium"
               >
                 Edit
               </button>
               <button
                 onClick={() => handleDelete(c._id)}
-                className="flex-1 py-2 rounded-xl bg-red-50 text-red-600 font-medium"
+                className="flex-1 py-2 rounded-md bg-red-50 text-red-600 font-medium"
               >
                 Delete
               </button>

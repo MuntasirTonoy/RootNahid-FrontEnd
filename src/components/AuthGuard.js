@@ -54,7 +54,7 @@ export default function AuthGuard({
         </p>
         <Link
           href="/"
-          className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/25"
+          className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-md hover:bg-primary/90 transition-all shadow-lg shadow-primary/25"
         >
           Return to Home
         </Link>

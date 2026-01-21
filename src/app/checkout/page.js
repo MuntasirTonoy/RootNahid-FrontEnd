@@ -9,6 +9,14 @@ import { auth } from "@/lib/firebase";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import {
+  ArrowRight,
+  Lock,
+  Phone,
+  Mail,
+  User as UserIcon,
+  X,
+} from "lucide-react";
 
 export default function CheckoutPage({ searchParams }) {
   // Await searchParams in Next.js 15
@@ -68,7 +76,7 @@ function CheckoutContent({ searchParams }) {
         text: "You can now access your courses.",
         icon: "success",
       }).then(() => {
-        router.push("/dashboard/my-classes"); // Redirect to my classes
+        router.push("/my-classes"); // Redirect to my classes
       });
     } catch (error) {
       console.error("Payment failed:", error);
@@ -107,9 +115,9 @@ function CheckoutContent({ searchParams }) {
           <div className="container-custom flex justify-between items-center">
             <Link
               href={`/course/${courseId}`}
-              className="text-sm rounded-full bg-red-500 p-2 text-white absolute right-10 top-30 font-bold text-gray-400 hover:text-foreground"
+              className="p-2 rounded-full bg-surface text-muted-foreground hover:text-foreground transition-colors absolute right-4 top-4"
             >
-              close
+              <X className="w-6 h-6" />
             </Link>
           </div>
         </div>
@@ -130,7 +138,7 @@ function CheckoutContent({ searchParams }) {
               {/* Billing Info */}
               <section>
                 <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
-                  <span className="text-primary">person</span> Billing
+                  <UserIcon className="w-5 h-5 text-primary" /> Billing
                   Information
                 </h2>
 
@@ -142,7 +150,7 @@ function CheckoutContent({ searchParams }) {
                     <input
                       type="text"
                       defaultValue={user?.displayName}
-                      className="w-full text-lg p-4 rounded-xl border border-transparent bg-gray-50 dark:bg-surface dark:text-foreground outline-none focus:bg-white dark:focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                      className="w-full text-lg p-4 rounded-md border border-transparent bg-gray-50 dark:bg-surface dark:text-foreground outline-none focus:bg-white dark:focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     />
                   </div>
                   <div>
@@ -153,7 +161,7 @@ function CheckoutContent({ searchParams }) {
                       type="email"
                       defaultValue={user?.email}
                       disabled
-                      className="w-full text-lg p-4 rounded-xl border border-transparent bg-gray-50 dark:bg-surface dark:text-foreground outline-none focus:bg-white dark:focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                      className="w-full text-lg p-4 rounded-md border border-transparent bg-gray-50 dark:bg-surface dark:text-foreground outline-none focus:bg-white dark:focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     />
                   </div>
                   <div className="md:col-span-2">
@@ -177,8 +185,7 @@ function CheckoutContent({ searchParams }) {
               {/* Payment Method */}
               <section>
                 <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
-                  <span className="text-primary">account_balance_wallet</span>{" "}
-                  Payment Method
+                  <Lock className="w-5 h-5 text-primary" /> Payment Method
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -190,7 +197,7 @@ function CheckoutContent({ searchParams }) {
                       className="peer sr-only"
                       defaultChecked
                     />
-                    <div className="p-4 rounded-xl border-2 border-border dark:border-border peer-checked:border-primary peer-checked:bg-green-50/50 dark:peer-checked:bg-primary/10 transition-all h-full relative">
+                    <div className="p-4 rounded-md border-2 border-border dark:border-border peer-checked:border-primary peer-checked:bg-primary/5 dark:peer-checked:bg-primary/10 transition-all h-full relative">
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-bold text-foreground">bKash</span>
                         <div className="w-5 h-5 rounded-full border-2 border-gray-300 peer-checked:border-primary peer-checked:bg-primary transition-all" />
@@ -208,7 +215,7 @@ function CheckoutContent({ searchParams }) {
                       name="payment"
                       className="peer sr-only"
                     />
-                    <div className="p-4 rounded-xl border-2 border-border dark:border-border peer-checked:border-primary peer-checked:bg-green-50/50 dark:peer-checked:bg-primary/10 transition-all h-full relative">
+                    <div className="p-4 rounded-md border-2 border-border dark:border-border peer-checked:border-primary peer-checked:bg-green-50/50 dark:peer-checked:bg-primary/10 transition-all h-full relative">
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-bold text-foreground">Nagad</span>
                         <div className="w-5 h-5 rounded-full border-2 border-gray-300 peer-checked:border-primary peer-checked:bg-primary transition-all" />
@@ -226,7 +233,7 @@ function CheckoutContent({ searchParams }) {
                       name="payment"
                       className="peer sr-only"
                     />
-                    <div className="p-4 rounded-xl border-2 border-border dark:border-border peer-checked:border-primary peer-checked:bg-green-50/50 dark:peer-checked:bg-primary/10 transition-all h-full relative">
+                    <div className="p-4 rounded-md border-2 border-border dark:border-border peer-checked:border-primary peer-checked:bg-primary/5 dark:peer-checked:bg-primary/10 transition-all h-full relative">
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-bold text-foreground">Card</span>
                         <div className="w-5 h-5 rounded-full border-2 border-gray-300 peer-checked:border-primary peer-checked:bg-primary transition-all" />
@@ -292,28 +299,38 @@ function CheckoutContent({ searchParams }) {
                 </div>
 
                 <div className="flex justify-between items-center mb-8">
-                  <span className="text-lg font-bold text-foreground">
+                  <span className="text-md md:text-lg font-bold text-foreground">
                     Total Amount
                   </span>
-                  <span className="text-3xl font-extrabold text-primary">
-                    {total} TK
-                  </span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl md:text-4xl font-black text-primary leading-none">
+                      {total}
+                    </span>
+                    <span className="text-xs md:text-sm font-bold text-muted-foreground">
+                      TK
+                    </span>
+                  </div>
                 </div>
 
                 <button
                   onClick={handlePayment}
                   disabled={processing}
-                  className="w-full py-4 bg-primary text-dark font-bold text-lg rounded-xl hover:bg-primary-hover shadow-lg shadow-primary/30 transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-primary text-primary-foreground font-bold text-md md:text-lg rounded-md hover:bg-primary-hover shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all flex justify-center items-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed group active:scale-[0.98]"
                 >
-                  {processing ? "Processing..." : "Pay Now"}
-                  {!processing && (
-                    <span className="material-icons">arrow_forward</span>
+                  {processing ? (
+                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <span>Pay Now</span>
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </>
                   )}
                 </button>
 
-                <p className="text-[10px] text-gray-400 text-center mt-4 font-bold tracking-widest uppercase">
-                  Secure payment powered by Root to Nahid
-                </p>
+                <div className="flex items-center justify-center gap-2 mt-6 text-[10px] text-muted-foreground font-bold tracking-widest uppercase">
+                  <Lock className="w-3 h-3" />
+                  <span>Secure Checkout</span>
+                </div>
               </div>
             </div>
           </div>

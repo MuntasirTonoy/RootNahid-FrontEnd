@@ -1,5 +1,8 @@
 "use client";
 
+import axios from "axios";
+import { auth } from "@/lib/firebase";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -13,6 +16,8 @@ import {
   Save,
   X,
   ChevronDown,
+  Bookmark,
+  PlayCircle,
 } from "lucide-react";
 import AuthGuard from "@/components/AuthGuard";
 
@@ -38,10 +43,35 @@ export default function ProfilePage() {
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
 
+  // Saved Videos State
+  const [savedVideos, setSavedVideos] = useState([]);
+  const [loadingSaved, setLoadingSaved] = useState(true);
+
   useEffect(() => {
     if (user) {
       setDisplayName(user.displayName || "");
       setPhotoURL(user.photoURL || AVATARS[0]);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const fetchSavedVideos = async () => {
+      if (!user) return;
+      try {
+        const token = await auth.currentUser.getIdToken();
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/saved-videos`,
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+        setSavedVideos(res.data);
+      } catch (error) {
+        console.error("Failed to fetch saved videos", error);
+      } finally {
+        setLoadingSaved(false);
+      }
+    };
+    if (user) {
+      fetchSavedVideos();
     }
   }, [user]);
 
@@ -83,12 +113,12 @@ export default function ProfilePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
             {/* Avatar Section */}
             <div className="bg-card rounded-3xl shadow-sm border border-border h-fit p-6">
               <div className="flex flex-col items-center text-center">
                 <div className="relative group mb-4">
-                  <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-primary ring-offset-4 ring-offset-card">
+                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden ring-4 ring-primary ring-offset-4 ring-offset-card transition-all">
                     <img
                       src={photoURL || AVATARS[0]}
                       alt="Profile"
@@ -97,26 +127,31 @@ export default function ProfilePage() {
                   </div>
                   <button
                     onClick={() => setShowAvatarModal(true)}
-                    className="absolute bottom-0 right-0 rounded-full p-2.5 bg-background border border-border text-primary hover:bg-primary hover:text-white transition-all shadow-lg"
+                    className="absolute bottom-0 right-0 rounded-full p-2 bg-background border border-border text-primary hover:bg-primary hover:text-white transition-all shadow-lg"
                   >
-                    <Camera size={18} />
+                    <Camera size={16} />
                   </button>
                 </div>
-                <h2 className="text-xl font-bold text-foreground mt-2">
+                <h2 className="text-lg md:text-xl font-bold text-foreground mt-2">
                   {user?.displayName || "User"}
                 </h2>
-                <p className="text-sm text-muted-foreground">{user?.email}</p>
+                <p className="text-xs md:text-sm text-muted-foreground break-all">
+                  {user?.email}
+                </p>
               </div>
             </div>
 
             {/* Details Section */}
-            <div className="md:col-span-2 bg-card rounded-3xl shadow-sm border border-border p-8">
-              <div className="">
-                <h3 className="text-xl font-bold text-foreground mb-6">
+            <div className="md:col-span-2 space-y-6 md:space-y-8">
+              <div className="bg-card rounded-3xl shadow-sm border border-border p-5 md:p-8">
+                <h3 className="text-lg md:text-xl font-bold text-foreground mb-6">
                   Account Details
                 </h3>
 
-                <form onSubmit={handleUpdateProfile} className="space-y-6">
+                <form
+                  onSubmit={handleUpdateProfile}
+                  className="space-y-5 md:space-y-6"
+                >
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground flex items-center gap-2">
                       <User size={16} className="text-muted-foreground" />{" "}
@@ -126,7 +161,7 @@ export default function ProfilePage() {
                       type="text"
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-surface border  border-border  focus:border-primary focus:bg-background outline-none transition-all placeholder:text-muted-foreground/50"
+                      className="w-full px-4 py-3 rounded-md bg-surface border  border-border  focus:border-primary focus:bg-background outline-none transition-all placeholder:text-muted-foreground/50 text-sm md:text-base"
                       placeholder="Your Name"
                     />
                   </div>
@@ -139,7 +174,7 @@ export default function ProfilePage() {
                       type="email"
                       value={user?.email || ""}
                       disabled
-                      className="w-full px-4 py-3 rounded-xl bg-surface/50 border border-border text-muted-foreground cursor-not-allowed"
+                      className="w-full px-4 py-3 rounded-md bg-surface/50 border border-border text-muted-foreground cursor-not-allowed text-sm md:text-base"
                     />
                     <p className="text-xs text-muted-foreground pl-1">
                       Email cannot be changed
@@ -147,7 +182,7 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="py-2">
-                    <div className="border border-border rounded-xl overflow-hidden">
+                    <div className="border border-border rounded-md overflow-hidden">
                       <button
                         type="button"
                         onClick={() =>
@@ -155,7 +190,7 @@ export default function ProfilePage() {
                         }
                         className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-surface transition-colors"
                       >
-                        <div className="flex items-center gap-2 font-medium text-foreground">
+                        <div className="flex items-center gap-2 font-medium text-foreground text-sm md:text-base">
                           <Lock size={16} className="text-muted-foreground" />{" "}
                           Change Password
                         </div>
@@ -171,7 +206,7 @@ export default function ProfilePage() {
                             type="password"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary outline-none transition-all placeholder:text-muted-foreground/50"
+                            className="w-full px-4 py-3 rounded-md bg-background border border-border focus:border-primary outline-none transition-all placeholder:text-muted-foreground/50 text-sm md:text-base"
                             placeholder="New Password"
                           />
                           <p className="text-xs text-orange-500 mt-2 pl-1">
@@ -183,11 +218,11 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end pt-4 mb-10">
+                  <div className="flex justify-end pt-4 mb-4 md:mb-10">
                     <button
                       type="submit"
                       disabled={isUpdating}
-                      className="flex items-center gap-2 px-8 py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center gap-2 px-6 md:px-8 py-3 bg-primary text-primary-foreground font-bold rounded-md hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base w-full md:w-auto justify-center"
                     >
                       {isUpdating ? (
                         <Loader2 className="animate-spin" size={18} />
@@ -199,6 +234,54 @@ export default function ProfilePage() {
                   </div>
                 </form>
               </div>
+
+              {/* Saved Videos Section */}
+              <div className="bg-card rounded-3xl shadow-sm border border-border p-5 md:p-8">
+                <h3 className="text-lg md:text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                  <Bookmark className="text-primary" size={24} />
+                  Saved Lessons
+                </h3>
+
+                {loadingSaved ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="animate-spin text-primary" size={32} />
+                  </div>
+                ) : savedVideos.length > 0 ? (
+                  <div className="space-y-4">
+                    {savedVideos.map((video) => (
+                      <Link
+                        key={video._id}
+                        href={
+                          video.subjectId
+                            ? `/learn/${video.subjectId.courseId}/${video.subjectId._id}?chapter=${encodeURIComponent(video.chapterName)}&part=${video._id}`
+                            : "#"
+                        }
+                        className="flex items-start gap-3 md:items-center md:gap-4 p-4 rounded-xl bg-surface hover:bg-muted transition-colors border border-border group"
+                      >
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors shrink-0 mt-1 md:mt-0">
+                          <PlayCircle size={20} className="md:w-6 md:h-6" />
+                        </div>
+                        <div className="flex-1 min-w-0 space-y-1 md:space-y-0">
+                          <h4 className="font-semibold text-foreground text-sm md:text-base break-words line-clamp-2">
+                            {video.title}
+                          </h4>
+                          <p className="text-xs md:text-sm text-muted-foreground truncate">
+                            {video.subjectId?.title || "Unknown Subject"} •{" "}
+                            {video.chapterName}
+                          </p>
+                        </div>
+                        <div className="text-[10px] md:text-xs font-bold px-2 md:px-3 py-1 bg-background rounded-full border border-border whitespace-nowrap">
+                          Part {video.partNumber}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground text-sm">
+                    <p>No saved lessons yet.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -206,9 +289,9 @@ export default function ProfilePage() {
         {/* Avatar Selection Modal */}
         {showAvatarModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-card rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-border">
+            <div className="bg-card rounded-3xl shadow-2xl max-w-lg w-full p-5 md:p-6 border border-border">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-foreground">
+                <h3 className="text-lg md:text-xl font-bold text-foreground">
                   Choose an Avatar
                 </h3>
                 <button
@@ -219,7 +302,7 @@ export default function ProfilePage() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 md:gap-4">
                 {AVATARS.map((avatar, index) => (
                   <button
                     key={index}
@@ -238,7 +321,7 @@ export default function ProfilePage() {
               <div className="mt-8 flex justify-end">
                 <button
                   onClick={() => setShowAvatarModal(false)}
-                  className="px-6 py-2 rounded-xl font-medium text-foreground hover:bg-surface transition-colors"
+                  className="px-6 py-2 rounded-md font-medium text-foreground hover:bg-surface transition-colors"
                 >
                   Cancel
                 </button>

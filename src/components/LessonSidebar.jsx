@@ -44,7 +44,7 @@ export default function LessonSidebar({
         {chapters.map((chapter) => (
           <div
             key={chapter.id}
-            className="rounded-xl overflow-hidden border border-border"
+            className="rounded-md overflow-hidden border border-border"
           >
             <button
               onClick={() => toggleChapter(chapter.id)}

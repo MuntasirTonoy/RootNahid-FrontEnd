@@ -8,6 +8,8 @@ import {
   Bookmark,
   CircleCheckBig,
   Loader2,
+  Menu,
+  X,
 } from "lucide-react";
 import AuthGuard from "@/components/AuthGuard";
 import { useAuth } from "@/context/AuthContext";
@@ -51,12 +53,7 @@ function LearnPageContent({ courseId, subjectId }) {
         );
 
         // 2. Fetch Videos (Flat List)
-        const videosRes = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/videos`, // Use public endpoint if available, but admin/videos is all videos.
-          // Wait, previous research showed /api/videos/:subjectId in userRoutes.js
-          // Let's use that specific endpoint for the user facing page
-          header,
-        );
+
         // Actually, let's use the specific endpoint we saw in userController: /api/videos/:subjectId
         // But wait, axios.get below...
         const userVideosRes = await axios.get(
@@ -72,14 +69,15 @@ function LearnPageContent({ courseId, subjectId }) {
         const groupedMap = new Map();
 
         videos.forEach((v) => {
-          if (!groupedMap.has(v.chapterName)) {
-            groupedMap.set(v.chapterName, {
-              id: v.chapterName, // Use name as ID for now
-              title: v.chapterName,
+          const cName = v.chapterName ? v.chapterName.trim() : "Untitled";
+          if (!groupedMap.has(cName)) {
+            groupedMap.set(cName, {
+              id: cName, // Use trimmed name as ID
+              title: v.chapterName, // Keep original title
               parts: [],
             });
           }
-          groupedMap.get(v.chapterName).parts.push({
+          groupedMap.get(cName).parts.push({
             id: v._id,
             title: v.title,
             videoUrl: v.videoUrl,
@@ -97,6 +95,7 @@ function LearnPageContent({ courseId, subjectId }) {
         }));
 
         setChapters(groupedChapters);
+        console.log("Loaded Chapters:", groupedChapters);
       } catch (error) {
         console.error("Failed to load content:", error);
       } finally {
@@ -123,11 +122,52 @@ function LearnPageContent({ courseId, subjectId }) {
 
   // Find active data objects
   // Note: chapter IDs in our grouped data are just the names (strings)
+  const decodedChapterId = chapterId
+    ? decodeURIComponent(chapterId).trim()
+    : null;
   const currentChapter =
-    chapters.find((c) => c.id === chapterId) || chapters[0];
+    chapters.find((c) => c.id === decodedChapterId || c.id === chapterId) ||
+    chapters[0];
   const currentPart =
     currentChapter?.parts?.find((p) => p.id === partId) ||
     currentChapter?.parts?.[0];
+
+  // Save/Bookmark Logic
+  const [isSaved, setIsSaved] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (user && user.savedVideos && currentPart) {
+      const saved = user.savedVideos.some(
+        (id) =>
+          (typeof id === "object" ? id._id || id : id).toString() ===
+          currentPart.id.toString(),
+      );
+      setIsSaved(saved);
+    }
+  }, [user, currentPart]);
+
+  const handleToggleSave = async () => {
+    if (!user || !currentPart) return;
+
+    try {
+      setSaveLoading(true);
+      const token = await auth.currentUser.getIdToken();
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/save-video`,
+        { videoId: currentPart.id },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      setIsSaved(res.data.isSaved);
+      // Optional: Toast/Alert can go here
+    } catch (error) {
+      console.error("Failed to toggle save:", error);
+      alert("Failed to save video. Please try again.");
+    } finally {
+      setSaveLoading(false);
+    }
+  };
 
   const handleLessonSelect = (cid, pid) => {
     // chapter IDs are names, so we need to encode/decode, but cleaner to just push
@@ -182,17 +222,29 @@ function LearnPageContent({ courseId, subjectId }) {
           {/* Main Content */}
           <main className="flex-1 overflow-y-auto p-4 lg:p-8">
             <div className="max-w-6xl mx-auto">
+              {/* Hamburger Button for Mobile */}
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-md bg-surface shadow-sm border border-border text-foreground hover:bg-muted transition-colors flex-shrink-0 my-2"
+              >
+                <Menu size={24} />
+              </button>
+
               {/* Header */}
               <div className="flex justify-between items-center mb-6">
-                <div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
-                    <span>{subject.title || "Subject"}</span>
-                    <span>/</span>
-                    <span>{currentChapter?.title}</span>
+                <div className="flex items-start gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mb-1">
+                      <span>{subject.title || "Subject"}</span>
+                      <span>/</span>
+                      <span className="truncate max-w-[150px]">
+                        {currentChapter?.title}
+                      </span>
+                    </div>
+                    <h1 className="text-xl md:text-2xl font-bold text-foreground break-words">
+                      {currentPart?.title || "Select a lesson"}
+                    </h1>
                   </div>
-                  <h1 className="text-2xl font-bold text-dark">
-                    {currentPart?.title || "Select a lesson"}
-                  </h1>
                 </div>
               </div>
 
@@ -214,65 +266,57 @@ function LearnPageContent({ courseId, subjectId }) {
                 )}
               </div>
 
-              {/* Mobile Sidebar - Below Video */}
-              <div className="lg:hidden h-[500px] mb-8 border border-base-200 rounded-xl overflow-hidden">
-                <LessonSidebar
-                  chapters={chapters}
-                  currentChapterId={chapterId}
-                  currentPartId={partId}
-                  onSelect={handleLessonSelect}
-                />
-              </div>
+              {/* Content Grid: PC (3:1), Mobile (Buttons top, About bottom) */}
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-20">
+                {/* Action Buttons - Order 1 on Mobile, 2 on lg */}
+                <div className="order-1 lg:order-2 lg:col-span-1 space-y-4">
+                  <button
+                    onClick={handleToggleSave}
+                    disabled={saveLoading || !currentPart}
+                    className={`w-full py-4 px-6 font-bold rounded-md border border-border flex items-center justify-center gap-2 transition-all duration-300 
+                      ${
+                        isSaved
+                          ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+                          : "bg-surface text-foreground border-border hover:bg-muted"
+                      }`}
+                  >
+                    {saveLoading ? (
+                      <Loader2 className="animate-spin" size={20} />
+                    ) : (
+                      <Bookmark
+                        className={isSaved ? "fill-current" : ""}
+                        size={20}
+                      />
+                    )}
+                    {isSaved ? "Save video" : "Save video"}
+                  </button>
 
-              {/* Action Bar */}
-              <div className="flex flex-wrap gap-4 mb-12">
-                <button className="flex-1 py-3 px-6 bg-green-50 text-green-700 font-bold rounded-xl hover:bg-base-content hover:text-base-100 hover:border-base-content flex items-center justify-center gap-2 border border-green-200 transition-colors">
-                  <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">
-                    <CircleCheckBig />
-                  </div>
-                  Mark as Completed
-                </button>
-                <button className="flex-1 py-3 px-6 bg-base-300 text-base-content font-bold rounded-xl border border-gray-200 hover:bg-base-content hover:text-base-100 hover:border-base-content flex items-center justify-center gap-2 transition-colors">
-                  <span>
-                    {" "}
-                    <Bookmark />
-                  </span>{" "}
-                  Save Lesson
-                </button>
-                <button className="flex-1 py-3 px-6 bg-base-300 text-base-content font-bold rounded-xl border border-gray-200 hover:bg-base-content hover:text-base-100 hover:border-base-content flex items-center justify-center gap-2 transition-colors">
-                  <span>
-                    {" "}
-                    <Bookmark />
-                  </span>{" "}
-                  Save Lesson
-                </button>
-                <a
-                  href={currentPart?.noteLink || "#"}
-                  target={currentPart?.noteLink ? "_blank" : "_self"}
-                  onClick={(e) => !currentPart?.noteLink && e.preventDefault()}
-                  className={`flex-1 py-3 px-6 font-bold rounded-xl border flex items-center justify-center gap-2 transition-colors
-                    ${
-                      currentPart?.noteLink
-                        ? "bg-base-300 text-base-content border-gray-200 hover:bg-base-content hover:text-base-100 hover:border-base-content cursor-pointer"
-                        : "bg-base-200 text-gray-400 border-transparent cursor-not-allowed opacity-50"
-                    }`}
-                >
-                  <span>
-                    {" "}
-                    <ArrowDownToLine />
-                  </span>{" "}
-                  Download Notes
-                </a>
-              </div>
+                  <a
+                    href={currentPart?.noteLink || "#"}
+                    target={currentPart?.noteLink ? "_blank" : "_self"}
+                    onClick={(e) =>
+                      !currentPart?.noteLink && e.preventDefault()
+                    }
+                    className={`w-full py-4 px-6 font-bold rounded-md border border-border flex items-center justify-center gap-2 transition-all duration-300
+                      ${
+                        currentPart?.noteLink
+                          ? "bg-surface text-foreground border-border hover:bg-muted cursor-pointer"
+                          : "bg-muted text-muted-foreground border-transparent cursor-not-allowed opacity-50"
+                      }`}
+                  >
+                    <ArrowDownToLine size={20} />
+                    Download Notes
+                  </a>
+                </div>
 
-              {/* Description */}
-              <div className="grid md:grid-cols-1 gap-8">
-                <div>
-                  <div className="bg-base-100 p-8 rounded-3xl shadow-sm">
-                    <h3 className="text-xl font-bold text-dark mb-4">
+                {/* About Section - Order 2 on Mobile, 1 on lg */}
+                <div className="order-2 lg:order-1 lg:col-span-3">
+                  <div className="bg-surface p-8 rounded-md border border-border transition-colors duration-300 h-full">
+                    <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+                      <div className="w-1 h-5 bg-primary rounded-full"></div>
                       About this Lesson
                     </h3>
-                    <div className="text-gray-500 leading-relaxed mb-6 whitespace-pre-wrap">
+                    <div className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
                       {currentPart?.description ||
                         (currentPart?.title
                           ? `You are watching ${currentPart.title}. No additional description provided.`
@@ -284,6 +328,32 @@ function LearnPageContent({ courseId, subjectId }) {
             </div>
           </main>
         </div>
+
+        {/* Mobile Sidebar Slider/Overlay */}
+        {isSidebarOpen && (
+          <div className="fixed inset-0 z-[100] lg:hidden">
+            {/* Overlay */}
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 ease-in-out"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+            {/* Drawer */}
+            <div className="absolute inset-y-0 left-0 w-80 bg-background shadow-2xl animate-in slide-in-from-left duration-300 ease-in-out flex flex-col">
+              <div className="flex-1 overflow-hidden">
+                <LessonSidebar
+                  chapters={chapters}
+                  currentChapterId={chapterId}
+                  currentPartId={partId}
+                  onClose={() => setIsSidebarOpen(false)}
+                  onSelect={(cid, pid) => {
+                    handleLessonSelect(cid, pid);
+                    setIsSidebarOpen(false);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AuthGuard>
   );
