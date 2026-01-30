@@ -125,7 +125,7 @@ export default function StudentsPage() {
       </div>
 
       {/* ================= DESKTOP TABLE ================= */}
-      <div className="hidden md:block bg-card rounded-2xl overflow-hidden">
+      <div className="hidden md:block bg-card rounded-md overflow-hidden">
         <table className="w-full border border-border">
           <thead className="bg-muted/20 text-xs uppercase">
             <tr>

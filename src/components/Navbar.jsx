@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import axios from "axios";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -14,6 +15,25 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
+  const [logoUrl, setLogoUrl] = useState(null);
+
+  // Fetch Logo
+  useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/config/banner`,
+        );
+        if (res.data && res.data.logoUrl) {
+          setLogoUrl(res.data.logoUrl);
+        }
+      } catch (error) {
+        // Silently fail or log
+        console.error("Error fetching logo", error);
+      }
+    };
+    fetchLogo();
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -42,10 +62,22 @@ export default function Navbar() {
       <div className="h-20 border-b border-border bg-background/80 backdrop-blur-md transition-colors duration-300">
         <div className="container-custom h-full flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold group-hover:bg-primary group-hover:text-white transition-all duration-300">
-              <Radical size={20} />
-            </div>
-            <span className="text-xl font-bold tracking-tight">Root Over</span>
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt="Logo"
+                className="h-10 w-auto object-contain"
+              />
+            ) : (
+              <>
+                <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                  <Radical size={20} />
+                </div>
+                <span className="text-xl font-bold tracking-tight">
+                  Root Over
+                </span>
+              </>
+            )}
           </Link>
 
           {/* Desktop Menu */}
