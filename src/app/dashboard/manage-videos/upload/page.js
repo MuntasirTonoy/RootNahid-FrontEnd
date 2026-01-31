@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import {
   Plus,
   Trash,
-  Save,
   BookOpen,
   Video,
   Link as LinkIcon,
@@ -20,7 +19,7 @@ import {
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 import { auth } from "@/lib/firebase";
-import Swal from "sweetalert2";
+import { toast } from "sonner";
 import Link from "next/link";
 
 const CustomDropdown = ({
@@ -71,7 +70,7 @@ const CustomDropdown = ({
         </button>
 
         {isOpen && !disabled && (
-          <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-card rounded-md shadow-xl border border-border max-h-60 overflow-y-auto z-[100]">
+          <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-card rounded-md border border-border max-h-60 overflow-y-auto z-[100]">
             <ul className="space-y-1">
               {options.map((opt, idx) => (
                 <li key={idx} onClick={() => handleSelect(opt.value)}>
@@ -122,7 +121,7 @@ const ManageVideos = () => {
         }
       } catch (error) {
         console.error("Error fetching subjects:", error);
-        Swal.fire("Error", "Failed to load subjects", "error");
+        toast.error("Failed to load subjects");
       } finally {
         setDataLoading(false);
       }
@@ -230,57 +229,46 @@ const ManageVideos = () => {
       !chapterName ||
       videoParts.some((p) => !p.videoUrl)
     ) {
-      Swal.fire(
-        "Missing Fields",
-        "Please select Department, Year, Subject and fill in Video URLs.",
-        "warning",
-      );
+      toast.warning("Please complete all fields");
       return;
     }
 
     try {
       setLoading(true);
       const token = await auth.currentUser.getIdToken();
-      let successCount = 0;
 
-      for (const part of videoParts) {
-        const videoData = {
+      // Prepare batch data
+      const batchData = {
+        chapterName,
+        department: selectedDept,
+        yearLevel: selectedYear,
+        subjectId: selectedSubjectId, // Sending correct ID
+        videos: videoParts.map((part) => ({
           title: part.title || `${chapterName} - Part ${part.partNumber}`,
-          chapterName: chapterName,
-          subjectId: selectedSubjectId, // Sending correct ID
-          partNumber: part.partNumber,
           videoUrl: getEmbedUrl(part.videoUrl),
           noteLink: part.noteLink,
           description: part.description,
           isFree: part.isFree,
-        };
+          partNumber: part.partNumber,
+        })),
+      };
 
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/video`,
-          videoData,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-        successCount++;
-      }
-
-      Swal.fire(
-        "Success",
-        `Uploaded ${successCount} videos for ${chapterName}`,
-        "success",
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/video/batch`,
+        batchData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       );
+
+      toast.success(`Uploaded ${videoParts.length} videos successfully`);
       setChapterName("");
       setVideoParts([
         { partNumber: 1, title: "", videoUrl: "", noteLink: "", isFree: false },
       ]);
     } catch (error) {
       console.error("Error creating videos:", error);
-      Swal.fire(
-        "Upload Failed",
-        "Something went wrong. Check console.",
-        "error",
-      );
+      toast.error("Upload failed. Check console.");
     } finally {
       setLoading(false);
     }
@@ -411,7 +399,7 @@ const ManageVideos = () => {
                   {videoParts.length > 1 && (
                     <button
                       onClick={() => removePart(index)}
-                      className="absolute -top-3 -right-3 rounded-md bg-red-500 text-white p-2 opacity-0 group-hover:opacity-100 transition-all z-10 shadow-lg"
+                      className="absolute -top-3 -right-3 rounded-md bg-red-500 text-white p-2 opacity-0 group-hover:opacity-100 transition-all z-10"
                       title="Remove Part"
                     >
                       <Trash size={16} />
@@ -585,14 +573,14 @@ const ManageVideos = () => {
             <button
               onClick={handleSubmit}
               disabled={loading || !selectedSubjectId}
-              className="flex items-center justify-center gap-2 rounded-md bg-primary px-8 py-2.5 font-semibold text-primary-foreground flex-1 md:flex-none min-w-[160px] shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
+              className="flex items-center justify-center gap-2 rounded-md bg-primary px-8 py-2.5 font-semibold text-primary-foreground flex-1 md:flex-none min-w-[160px] shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
             >
               {loading ? (
                 <Loader2 className="animate-spin w-4 h-4" />
               ) : (
-                <Save size={18} />
+                <Upload size={18} />
               )}
-              Save Course
+              Upload
             </button>
           </div>
         </div>

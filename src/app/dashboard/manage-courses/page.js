@@ -6,6 +6,7 @@ import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 import { auth } from "@/lib/firebase";
 import Swal from "sweetalert2";
+import { toast } from "sonner";
 
 import Link from "next/link";
 import CourseEditModal from "@/components/dashboard/CourseEditModal";
@@ -78,19 +79,19 @@ export default function ManageCourses() {
           formData,
           { headers: { Authorization: `Bearer ${token}` } },
         );
-        Swal.fire("Updated", "Course updated successfully", "success");
+        toast.success("Course updated successfully");
       } else {
         await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/api/admin/course`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } },
         );
-        Swal.fire("Created", "Course created successfully", "success");
+        toast.success("Course created successfully");
       }
       setModalOpen(false);
       fetchCourses();
     } catch {
-      Swal.fire("Error", "Something went wrong", "error");
+      toast.error("Something went wrong");
     } finally {
       setModalLoading(false);
     }
@@ -114,10 +115,10 @@ export default function ManageCourses() {
         { headers: { Authorization: `Bearer ${token}` } },
       );
       fetchCourses();
-      Swal.fire("Deleted", "Course removed", "success");
+      toast.success("Course removed successfully");
     } catch (error) {
       console.error(error);
-      Swal.fire("Error", "Failed to delete course", "error");
+      toast.error("Failed to delete course");
     } finally {
       setDeletingId(null);
     }

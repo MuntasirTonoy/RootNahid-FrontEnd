@@ -19,6 +19,8 @@ import { auth } from "@/lib/firebase";
 import Swal from "sweetalert2";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import ImageUpload from "@/components/dashboard/ImageUpload";
+import { toast } from "sonner";
 
 const CustomDropdown = ({
   label,
@@ -132,7 +134,7 @@ const AddCourse = () => {
         }
       } catch (error) {
         console.error("Error fetching subjects:", error);
-        Swal.fire("Error", "Failed to load subjects", "error");
+        toast.error("Failed to load subjects");
       }
     };
 
@@ -199,7 +201,7 @@ const AddCourse = () => {
   const handleAddSubject = () => {
     if (!selectedSubjectId) return;
     if (!subjectPrice || !subjectOfferPrice) {
-      Swal.fire("Error", "Please set both Price and Offer Price", "warning");
+      toast.warning("Please set both Price and Offer Price");
       return;
     }
 
@@ -225,12 +227,8 @@ const AddCourse = () => {
   };
 
   const handleSubmit = async () => {
-    if (!title || !selectedDept || !selectedYear) {
-      Swal.fire(
-        "Missing Fields",
-        "Please fill in Title, Department, and Year level.",
-        "warning",
-      );
+    if (!title || !selectedDept || !selectedYear || !thumbnail) {
+      toast.warning("Please fill in Title, Dept, Year, and Thumbnail");
       return;
     }
 
@@ -259,15 +257,11 @@ const AddCourse = () => {
         },
       );
 
-      Swal.fire("Success", "Course created successfully", "success");
+      toast.success("Course created successfully");
       router.push("/dashboard/manage-courses");
     } catch (error) {
       console.error("Error creating course:", error);
-      Swal.fire(
-        "Creation Failed",
-        "Something went wrong. Check console.",
-        "error",
-      );
+      toast.error("Creation failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -317,22 +311,12 @@ const AddCourse = () => {
             />
           </div>
 
-          {/* Thumbnail Input */}
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text font-bold text-lg flex items-center gap-2 text-foreground">
-                <ImageIcon className="w-5 h-5 text-primary" />
-                Thumbnail URL
-              </span>
-            </label>
-            <input
-              type="text"
-              placeholder="https://..."
-              className="w-full text-base p-4 rounded-md border border-transparent bg-surface hover:bg-surface-hover outline-none focus:bg-card focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground placeholder:text-muted-foreground/50"
-              value={thumbnail}
-              onChange={(e) => setThumbnail(e.target.value)}
-            />
-          </div>
+          {/* Thumbnail Upload */}
+          <ImageUpload
+            value={thumbnail}
+            onChange={setThumbnail}
+            label="Course Thumbnail"
+          />
 
           <div className="divider text-muted-foreground text-sm font-medium">
             Course Filters

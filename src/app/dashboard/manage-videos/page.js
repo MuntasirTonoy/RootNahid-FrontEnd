@@ -16,9 +16,10 @@ import {
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 import { auth } from "@/lib/firebase";
+import { toast } from "sonner";
 import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import VideoEditModal from "@/components/dashboard/VideoEditModal";
 
 import LoadingAnimation from "@/components/LoadingAnimation";
 
@@ -27,6 +28,7 @@ import EmptyState from "@/components/EmptyState";
 
 export default function ManageVideosList() {
   const { user } = useAuth();
+  const router = useRouter();
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -77,14 +79,8 @@ export default function ManageVideosList() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Fetch Error",
-        text:
-          error.response?.data?.message ||
-          error.message ||
-          "Failed to load videos",
-      });
+
+      toast.error("Failed to load videos");
     } finally {
       setLoading(false);
     }
@@ -116,11 +112,11 @@ export default function ManageVideosList() {
               headers: { Authorization: `Bearer ${token}` },
             },
           );
-          Swal.fire("Deleted!", "Video has been deleted.", "success");
+          toast.success("Video deleted successfully");
           fetchData();
         } catch (error) {
           console.error("Error deleting video:", error);
-          Swal.fire("Error", "Failed to delete video", "error");
+          toast.error("Failed to delete video");
         } finally {
           setDeletingId(null);
         }
@@ -129,22 +125,11 @@ export default function ManageVideosList() {
   };
 
   const handleEditClick = (video) => {
-    // Find the full subject object to pre-fill department and year
-    const subject = availableSubjects.find(
-      (s) => s._id === video.subjectId?._id || s._id === video.subjectId,
-    );
-
-    setEditingVideo({
-      ...video,
-      department: subject?.department || "",
-      yearLevel: subject?.yearLevel || "",
-      // Ensure subjectId is the string ID, not an object if populated
-      subjectId:
-        typeof video.subjectId === "object"
-          ? video.subjectId._id
-          : video.subjectId,
-    });
-    setIsEditModalOpen(true);
+    if (video.editLogId) {
+      router.push(`/dashboard/edit-panel/${video.editLogId}`);
+    } else {
+      toast.info("Legacy videos cannot be batch edited");
+    }
   };
 
   // Helper to convert YouTube links to Embed format
@@ -171,7 +156,7 @@ export default function ManageVideosList() {
 
   const handleUpdateVideo = async () => {
     if (!editingVideo.title || !editingVideo.videoUrl) {
-      Swal.fire("Error", "Title and Video URL are required", "error");
+      toast.error("Title and Video URL are required");
       return;
     }
 
@@ -194,13 +179,13 @@ export default function ManageVideosList() {
         },
       );
 
-      Swal.fire("Success", "Video updated successfully", "success");
+      toast.success("Video updated successfully");
       setIsEditModalOpen(false);
       setEditingVideo(null);
       fetchData();
     } catch (error) {
       console.error("Error updating video:", error);
-      Swal.fire("Error", "Failed to update video", "error");
+      toast.error("Failed to update video");
     } finally {
       setUpdateLoading(false);
     }
@@ -442,17 +427,6 @@ export default function ManageVideosList() {
         totalPages={totalPages}
         onPageChange={setCurrentPage}
         isLoading={loading}
-      />
-
-      {/* Edit Modal */}
-      <VideoEditModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        video={editingVideo}
-        setVideo={setEditingVideo}
-        onSave={handleUpdateVideo}
-        loading={updateLoading}
-        availableSubjects={availableSubjects}
       />
     </div>
   );

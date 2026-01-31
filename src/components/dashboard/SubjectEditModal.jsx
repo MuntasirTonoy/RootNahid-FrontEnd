@@ -250,7 +250,7 @@ export default function SubjectEditModal({
           <button
             onClick={onSave}
             disabled={loading}
-            className="px-6 py-2 rounded-md text-sm font-bold bg-primary text-primary-foreground hover:brightness-110 shadow-lg shadow-primary/20 flex items-center gap-2 transition-all disabled:opacity-50"
+            className="px-6 py-2 rounded-md text-sm font-bold bg-primary text-primary-foreground hover:brightness-110 shadow-primary/20 flex items-center gap-2 transition-all disabled:opacity-50"
           >
             {loading ? (
               <Loader2 className="animate-spin w-4 h-4" />

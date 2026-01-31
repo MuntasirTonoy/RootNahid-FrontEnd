@@ -13,6 +13,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { auth } from "@/lib/firebase";
 import Swal from "sweetalert2";
+import { toast } from "sonner";
+import ImageUpload from "./ImageUpload";
 
 export default function CourseEditModal({
   isOpen,
@@ -134,7 +136,7 @@ export default function CourseEditModal({
       subjectOfferPrice === "" ||
       subjectOfferPrice === null
     ) {
-      Swal.fire("Error", "Please set both Price and Offer Price", "warning");
+      toast.warning("Please set both Price and Offer Price");
       return;
     }
 
@@ -208,24 +210,12 @@ export default function CourseEditModal({
               />
             </div>
 
-            {/* Thumbnail */}
-            <div className="form-control">
-              <label className="label text-xs font-bold uppercase text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <ImageIcon size={14} /> Thumbnail URL
-                </div>
-              </label>
-              <input
-                type="text"
-                placeholder="https://..."
-                value={formData.thumbnail}
-                onChange={(e) =>
-                  setFormData({ ...formData, thumbnail: e.target.value })
-                }
-                className="input input-bordered w-full rounded-md bg-surface border-border focus:outline-none focus:ring-2 focus:ring-primary/20 p-3"
-                required
-              />
-            </div>
+            {/* Thumbnail Upload */}
+            <ImageUpload
+              value={formData.thumbnail}
+              onChange={(url) => setFormData({ ...formData, thumbnail: url })}
+              label="Course Thumbnail"
+            />
 
             {/* Classification */}
             <div className="p-5 rounded-lg border border-border bg-muted/5 space-y-4">
