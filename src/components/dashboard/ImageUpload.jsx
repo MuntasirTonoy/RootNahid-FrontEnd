@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Upload, X, ImageIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { auth } from "@/lib/firebase";
 
 export default function ImageUpload({ value, onChange, label }) {
   const [uploading, setUploading] = useState(false);
@@ -59,8 +60,41 @@ export default function ImageUpload({ value, onChange, label }) {
     }
   };
 
-  const removeImage = () => {
-    onChange("");
+  const removeImage = async () => {
+    const urlToDelete = value;
+    onChange(""); // Optimistic update: Clear UI immediately
+    if (!urlToDelete) return;
+
+    try {
+      // Extract public_id from URL
+      // Pattern: .../upload/v<version>/<public_id>.<ext>
+      const regex = /\/upload\/v\d+\/(.+)\.[^.]+$/;
+      const match = urlToDelete.match(regex);
+
+      if (match && match[1]) {
+        const publicId = match[1];
+
+        // Call backend to delete
+        const token = await auth.currentUser?.getIdToken();
+        if (token) {
+          // Fire and forget (don't await if we want purely background, but inside async it's fine)
+          await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/admin/upload/delete-image`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ publicId }),
+            },
+          );
+          console.log("Image deleted from cloud");
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting image:", error);
+    }
   };
 
   return (
