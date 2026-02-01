@@ -22,6 +22,8 @@ import {
   Phone,
   Calendar,
   Users,
+  Upload,
+  Image as ImageIcon,
 } from "lucide-react";
 import AuthGuard from "@/components/AuthGuard";
 import { motion } from "framer-motion";
@@ -59,6 +61,10 @@ export default function ProfilePage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [customAvatarUrl, setCustomAvatarUrl] = useState("");
+  const [tempAvatar, setTempAvatar] = useState("");
+  const [isSavingAvatar, setIsSavingAvatar] = useState(false);
 
   // Additional profile fields (optional)
   const [institution, setInstitution] = useState("");
@@ -112,7 +118,7 @@ export default function ProfilePage() {
       // Update backend with additional fields
       const token = await auth.currentUser.getIdToken();
       await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/profile`,
         {
           displayName,
           avatar: photoURL,
@@ -139,8 +145,93 @@ export default function ProfilePage() {
   };
 
   const handleSelectAvatar = (url) => {
-    setPhotoURL(url);
-    setShowAvatarModal(false);
+    setTempAvatar(url);
+  };
+
+  const saveAvatarToDatabase = async () => {
+    if (!tempAvatar) return;
+
+    setIsSavingAvatar(true);
+    try {
+      // 1. Update Local State
+      setPhotoURL(tempAvatar);
+
+      // 2. Update Firebase Profile
+      await updateUserProfile({ displayName, photoURL: tempAvatar });
+
+      // 3. Update Backend Database
+      const token = await auth.currentUser.getIdToken();
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/profile`,
+        {
+          displayName,
+          avatar: tempAvatar,
+          institution,
+          mobile,
+          gender,
+          dateOfBirth,
+        },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      toast.success("Avatar updated successfully!");
+      setShowAvatarModal(false);
+    } catch (error) {
+      console.error("Failed to save avatar:", error);
+      toast.error("Failed to update avatar.");
+    } finally {
+      setIsSavingAvatar(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be less than 5MB");
+      return;
+    }
+
+    try {
+      setUploadingAvatar(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append(
+        "upload_preset",
+        process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
+      );
+      formData.append("folder", "avatars");
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+      setTempAvatar(data.secure_url);
+      setCustomAvatarUrl(data.secure_url);
+      toast.success("Avatar uploaded successfully!");
+    } catch (error) {
+      console.error("Avatar upload error:", error);
+      toast.error("Failed to upload avatar. Please try again.");
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   return (
@@ -165,7 +256,7 @@ export default function ProfilePage() {
             {/* Left Column: Avatar + Saved Videos */}
             <div className="space-y-6">
               {/* Avatar Section */}
-              <div className="bg-card rounded-3xl border border-border h-fit p-6">
+              <div className="bg-card rounded-md border border-border h-fit p-6">
                 <div className="flex flex-col items-center text-center">
                   <div className="relative group mb-4">
                     <div
@@ -178,7 +269,10 @@ export default function ProfilePage() {
                       />
                     </div>
                     <button
-                      onClick={() => setShowAvatarModal(true)}
+                      onClick={() => {
+                        setTempAvatar(photoURL);
+                        setShowAvatarModal(true);
+                      }}
                       className="absolute bottom-0 right-0 rounded-full p-2 bg-background border border-border text-primary hover:bg-primary hover:text-white transition-all shadow-lg"
                     >
                       <Camera size={16} />
@@ -199,7 +293,7 @@ export default function ProfilePage() {
               </div>
 
               {/* Saved Videos Section */}
-              <div className="bg-surface rounded-3xl border border-border p-5 md:p-6">
+              <div className="bg-surface rounded-md border border-border p-5 md:p-6">
                 <header className="flex justify-between items-center mb-6">
                   <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                     <Bookmark className="text-primary" size={20} />
@@ -252,7 +346,7 @@ export default function ProfilePage() {
 
             {/* Details Section */}
             <div className="md:col-span-2 space-y-6 md:space-y-8">
-              <div className="bg-card rounded-3xl border border-border p-5 md:p-8">
+              <div className="bg-card rounded-md border border-border p-5 md:p-8">
                 <h3 className="text-lg md:text-xl font-bold text-foreground mb-6">
                   Account Details
                 </h3>
@@ -432,9 +526,9 @@ export default function ProfilePage() {
         {/* Avatar Selection Modal */}
         {showAvatarModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-card rounded-3xl shadow-2xl max-w-2xl w-full p-5 md:p-6 border border-border max-h-[90vh] overflow-y-auto">
+            <div className="bg-card rounded-3xl shadow-2xl max-w-2xl w-full p-5 md:p-6  md:pt-0 pt-0 border border-border max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-6 sticky top-0 bg-card pb-4 z-10">
-                <h3 className="text-lg md:text-xl font-bold text-foreground">
+                <h3 className="text-lg pt-4 md:text-xl font-bold text-foreground">
                   Choose an Avatar
                 </h3>
                 <button
@@ -445,12 +539,71 @@ export default function ProfilePage() {
                 </button>
               </div>
 
+              {/* Upload Custom Avatar Section */}
+              <div className="mb-6 p-4 rounded-xl border-2 border-dashed border-border bg-gradient-to-br from-primary/5 to-transparent hover:border-primary/50 transition-all">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <ImageIcon className="text-primary" size={28} />
+                  </div>
+                  <h4 className="text-sm font-semibold text-foreground mb-1">
+                    Upload Custom Avatar
+                  </h4>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    JPG, PNG or GIF (max 5MB)
+                  </p>
+                  <label
+                    htmlFor="avatar-upload"
+                    className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm transition-all cursor-pointer ${
+                      uploadingAvatar
+                        ? "bg-muted text-muted-foreground cursor-not-allowed"
+                        : "bg-primary text-primary-foreground hover:brightness-110 shadow-lg shadow-primary/20"
+                    }`}
+                  >
+                    {uploadingAvatar ? (
+                      <>
+                        <Loader2 className="animate-spin" size={16} />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={16} />
+                        Choose File
+                      </>
+                    )}
+                  </label>
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    disabled={uploadingAvatar}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="relative mb-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border"></div>
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-card px-3 text-muted-foreground font-medium">
+                    Or choose from preset avatars
+                  </span>
+                </div>
+              </div>
+
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 md:gap-4">
                 {AVATARS.map((avatar, index) => (
                   <button
                     key={index}
                     onClick={() => handleSelectAvatar(avatar)}
-                    className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition-all hover:scale-105 ${photoURL === avatar ? "border-primary ring-2 ring-primary/20 scale-95" : "border-transparent hover:border-border"}`}
+                    className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all hover:scale-105 ${
+                      tempAvatar === avatar
+                        ? "border-primary ring-2 ring-primary/20 scale-95"
+                        : "border-transparent hover:border-border"
+                    }`}
                   >
                     <img
                       src={avatar}
@@ -461,12 +614,26 @@ export default function ProfilePage() {
                 ))}
               </div>
 
-              <div className="mt-8 flex justify-end sticky bottom-0 bg-card pt-4">
+              <div className="mt-8 flex justify-end gap-3 sticky bottom-0 bg-card pt-4 border-t border-border">
                 <button
                   onClick={() => setShowAvatarModal(false)}
-                  className="px-6 py-2 rounded-md font-medium text-foreground hover:bg-surface transition-colors"
+                  className="px-6 py-2 rounded-md font-medium text-muted-foreground hover:bg-surface transition-colors"
                 >
                   Cancel
+                </button>
+                <button
+                  onClick={saveAvatarToDatabase}
+                  disabled={isSavingAvatar}
+                  className="px-6 py-2 rounded-md font-bold bg-primary text-primary-foreground hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isSavingAvatar ? (
+                    <>
+                      <Loader2 className="animate-spin w-4 h-4" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
                 </button>
               </div>
             </div>

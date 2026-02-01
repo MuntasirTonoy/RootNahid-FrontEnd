@@ -292,7 +292,7 @@ const AddCourse = () => {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto pt-3 md:p-6 space-y-6">
+      <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
         <div className="bg-card rounded-3xl border border-border p-5 md:p-8 space-y-8">
           {/* Title Input */}
           <div className="form-control w-full">

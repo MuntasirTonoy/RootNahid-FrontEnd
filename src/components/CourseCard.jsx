@@ -3,13 +3,13 @@ import { Check, ArrowRight } from "lucide-react";
 
 export default function CourseCard({ course }) {
   return (
-    <div className="group relative bg-card rounded-3xl p-6 border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5 flex flex-col h-full overflow-hidden w-full max-w-[400px]">
+    <div className="group relative bg-card rounded-md p-6 border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5 flex flex-col h-full overflow-hidden w-full max-w-[400px]">
       {/* Glow Effect */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -mr-10 -mt-10 transition-opacity opacity-0 group-hover:opacity-100 duration-500"></div>
 
       <div className="relative z-10 flex flex-col h-full">
         {/* Thumbnail - Added as requested */}
-        <div className="mb-4 rounded-2xl overflow-hidden aspect-video relative bg-muted">
+        <div className="mb-4 rounded-xl h-48 overflow-hidden aspect-video relative bg-muted">
           <img
             src={course.coverImage || course.thumbnail}
             alt={course.title}

@@ -304,7 +304,7 @@ const ManageVideos = () => {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto pt-4 md:p-6 space-y-6">
+      <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
         {/* ------------------- 1. SELECTION CARD ------------------- */}
         <div className="bg-card rounded-3xl border border-border p-4 md:p-5">
           <div className="overflow-visible z-10">
